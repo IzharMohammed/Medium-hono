@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { env } from 'hono/adapter'
 const jwtPassword = 'secret';
-import { decode, sign, verify } from 'hono/jwt'
+import { sign, verify } from 'hono/jwt'
 const app = new Hono()
 import { z as zod } from 'zod';
 
@@ -114,19 +114,18 @@ app.post('/api/v1/user/signin', async (c) => {
 })
 
 app.post('/api/v1/blog', async (c) => {
-  console.log('response', c.get('jwtPayload'));
+
   const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
   const prisma = new PrismaClient({
     datasourceUrl: DATABASE_URL,
   }).$extends(withAccelerate());
 
   const body = JSON.parse(await c.req.text());
-  const authorId = c.get('jwtPayload');
-  const title = body.title;
-  const content = body.content;
-  const published = body.published;
-  console.log([title, content, published]);
 
+  const authorId = c.get('jwtPayload');
+
+  const { title, content, published } = body;
+  console.log([title, content, published]);
 
   const response = await prisma.post.create({
     data: {
@@ -142,8 +141,33 @@ app.post('/api/v1/blog', async (c) => {
 })
 
 
-app.put('/api/v1/blog', (c) => {
-  return c.text('i am in 3 !!!')
+app.put('/api/v1/blog', async (c) => {
+
+  const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+
+  const prisma = new PrismaClient({
+    datasourceUrl: DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const authorId = c.get('jwtPayload');
+
+  const body = await c.req.json();
+
+  const { id, title, content } = body;
+  console.log([title, content, id, authorId]);
+
+  await prisma.post.update({
+    where: {
+      id,
+      authorId
+    },
+    data: {
+      title,
+      content
+    }
+  })
+
+  return c.text('Succefully updated the blog')
 })
 
 app.get('/api/v1/blog/:id', (c) => {

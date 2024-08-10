@@ -2,5 +2,5 @@ name = "backend"
 compatibility_date = "2024-08-09"
 
  [vars]
- 
+
 node_compat = true
