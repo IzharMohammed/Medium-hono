@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { env } from 'hono/adapter'
 const jwtPassword = 'secret';
-import { sign, verify } from 'hono/jwt'
+import {decode, sign, verify } from 'hono/jwt'
 const app = new Hono()
 import { z as zod } from 'zod';
 
@@ -170,14 +170,39 @@ app.put('/api/v1/blog', async (c) => {
   return c.text('Succefully updated the blog')
 })
 
-app.get('/api/v1/blog/:id', (c) => {
-  const id = c.req.param('id')
-
-  return c.text(`id is :- ${id}`)
+app.get('/api/v1/blog/:id', async (c) => {
+  return c.text(`Successfully fetched all the blogs by id !!!`);
+ 
+ 
 })
 
-app.post('/api/v1/blog/bulk', (c) => {
-  return c.text('i am in 4 !!!')
+app.post('/api/v1/blog/bulk', async (c) => {
+  const token = c.req.header('token');
+  const authorId = c.get('jwtPayload');
+  if (!token) {
+    return c.json({
+      msg: 'Token needed',
+    });
+  }
+  const response = decode(token);
+  console.log('decoded token',response);
+  
+  const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+const email = response.payload.email ;
+console.log('email',email);
+
+   const prisma = new PrismaClient({
+    datasourceUrl: DATABASE_URL,
+  }).$extends(withAccelerate());
+  const id = c.req.param('id')
+  const blogs = await prisma.post.findMany({
+    where: {
+      authorId 
+    }
+  }); 
+  console.log('blogs',blogs);
+  
+  return c.text('successfully fetched all the blogs');
 })
 
 export default app
