@@ -8,7 +8,8 @@ const app = new Hono()
 import { z as zod } from 'zod';
 
 type responsePayload = {
-  email: string
+  email: string,
+  id: number
 }
 
 app.use('/api/v1/blog/*', async (c, next) => {
@@ -22,11 +23,11 @@ app.use('/api/v1/blog/*', async (c, next) => {
 
   try {
     const response = await verify(token, jwtPassword) as responsePayload;
-    const email = response.email;
+    const id = response.id;
 
     console.log(response);
     // c.header('response', email);
-    c.set('jwtPayload', email)
+    c.set('jwtPayload', id)
     await next();
   } catch (error) {
     return c.json({
@@ -34,8 +35,6 @@ app.use('/api/v1/blog/*', async (c, next) => {
     }, 401);
   }
 });
-
-
 
 app.post('/api/v1/user/signup', async (c) => {
 
@@ -100,21 +99,46 @@ app.post('/api/v1/user/signin', async (c) => {
 
   const response = await prisma.user.findFirst({
     where: {
+
       email
     }
   })
 
-  const token = await sign({ email }, jwtPassword);
+  console.log(response);
+  const id = response?.id
+  const token = await sign({ email, id }, jwtPassword);
 
   console.log(response);
 
   return c.text(token)
 })
 
-app.post('/api/v1/blog', (c) => {
+app.post('/api/v1/blog', async (c) => {
   console.log('response', c.get('jwtPayload'));
+  const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+  const prisma = new PrismaClient({
+    datasourceUrl: DATABASE_URL,
+  }).$extends(withAccelerate());
 
-  return c.text('i am in 2 !!!')
+  const body = JSON.parse(await c.req.text());
+  const authorId = c.get('jwtPayload');
+  const title = body.title;
+  const content = body.content;
+  const published = body.published;
+  console.log([title, content, published]);
+
+
+  const response = await prisma.post.create({
+    data: {
+      title,
+      content,
+      published,
+      authorId
+    }
+  })
+  console.log(response);
+
+  return c.text('blog successfully created ');
 })
 
 
