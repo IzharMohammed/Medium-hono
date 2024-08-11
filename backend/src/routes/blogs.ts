@@ -1,0 +1,140 @@
+import { Hono } from 'hono';
+import { PrismaClient } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate';
+import { env } from 'hono/adapter';
+const jwtPassword = 'secret'; // Secret key used for JWT signing and verification
+import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
+
+// Define the response payload type for JWT verification
+type responsePayload = {
+    email: string,
+    id: number
+}
+
+const blogsRouter = new Hono(); // Create a new Hono router instance
+
+// Middleware to verify the JWT token for all routes under this router
+blogsRouter.use('/*', async (c, next) => {
+    const token = c.req.header('token'); // Get the token from the request headers
+
+    if (!token) {
+        return c.json({
+            msg: 'Token needed',
+        }); // Respond with an error if the token is missing
+    }
+
+    try {
+        // Verify the token and cast it to the responsePayload type
+        const response = await verify(token, jwtPassword) as responsePayload;
+        const id = response.id; // Extract the user ID from the verified token
+
+        console.log(response);
+        // Store the user ID in the context for later use
+        c.set('jwtPayload', id);
+        await next(); // Continue to the next middleware or route handler
+    } catch (error) {
+        return c.json({
+            msg: 'Invalid token',
+        }, 401); // Respond with an error if the token is invalid
+    }
+});
+
+// Route to create a new blog post
+blogsRouter.post('/', async (c) => {
+    // Get the database URL from environment variables
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+    // Initialize Prisma Client with the Accelerate extension
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    // Parse the request body as JSON
+    const body = JSON.parse(await c.req.text());
+    // Get the author ID from the context (set by the middleware)
+    const authorId = c.get('jwtPayload');
+
+    const { title, content, published } = body;
+    console.log([title, content, published]);
+
+    // Create a new blog post in the database
+    const response = await prisma.post.create({
+        data: {
+            title,
+            content,
+            published,
+            authorId,
+        },
+    });
+    console.log(response);
+
+    return c.text('blog successfully created ');
+});
+
+// Route to update an existing blog post
+blogsRouter.put('/', async (c) => {
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    const authorId = c.get('jwtPayload'); // Get the author ID from the context
+
+    // Parse the request body as JSON
+    const body = await c.req.json();
+
+    const { id, title, content } = body;
+    console.log([title, content, id, authorId]);
+
+    // Update the blog post with the given ID and author ID
+    await prisma.post.update({
+        where: {
+            id,
+            authorId,
+        },
+        data: {
+            title,
+            content,
+        },
+    });
+
+    return c.text('Successfully updated the blog');
+});
+
+// Route to fetch a blog post by ID (Note: This implementation just returns a placeholder text)
+blogsRouter.get('/:id', async (c) => {
+    
+    return c.text(`Successfully fetched all the blogs by id !!!`);
+});
+
+// Route to fetch all blog posts in bulk
+blogsRouter.post('/bulk', async (c) => {
+    const token = c.req.header('token'); // Get the token from the request headers
+    const authorId = c.get('jwtPayload'); // Get the author ID from the context
+    if (!token) {
+        return c.json({
+            msg: 'Token needed',
+        });
+    }
+    const response = decode(token); // Decode the token without verifying it
+    console.log('decoded token', response);
+
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+    const email = response.payload.email; // Extract the email from the decoded token
+    console.log('email', email);
+
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL,
+    }).$extends(withAccelerate());
+    const id = c.req.param('id'); // Get the blog post ID from the request parameters
+    const blogs = await prisma.post.findMany({
+        where: {
+            authorId,
+        },
+    });
+    console.log('blogs', blogs);
+
+    return c.text('successfully fetched all the blogs');
+});
+
+export default blogsRouter; // Export the router for use in other parts of the application
