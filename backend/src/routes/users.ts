@@ -8,7 +8,7 @@ import { env } from 'hono/adapter';
 
 export const userRouter = new Hono();
 
-userRouter.post('/api/v1/user/signup', async (c) => {
+userRouter.post('signup', async (c) => {
 
     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     const prisma = new PrismaClient({
@@ -53,8 +53,8 @@ userRouter.post('/api/v1/user/signup', async (c) => {
     return c.text(`${email} logged in successfully !!! `)
 })
 
-userRouter.post('/api/v1/user/signin', async (c) => {
-
+userRouter.post('signin', async (c) => {
+    
     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     const prisma = new PrismaClient({
         datasourceUrl: DATABASE_URL,
@@ -71,7 +71,6 @@ userRouter.post('/api/v1/user/signin', async (c) => {
 
     const response = await prisma.user.findFirst({
         where: {
-
             email
         }
     })

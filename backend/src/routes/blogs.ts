@@ -2,32 +2,30 @@ import { Hono } from 'hono';
 import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { env } from 'hono/adapter';
-const jwtPassword = 'secret'; // Secret key used for JWT signing and verification
 import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
+const jwtPassword = 'secret'; // Secret key used for JWT signing and verification
 
-// Define the response payload type for JWT verification
 type responsePayload = {
     email: string,
     id: number
-}
-
+  }
+  
 const blogsRouter = new Hono(); // Create a new Hono router instance
-
 // Middleware to verify the JWT token for all routes under this router
 blogsRouter.use('/*', async (c, next) => {
     const token = c.req.header('token'); // Get the token from the request headers
-
+  
     if (!token) {
         return c.json({
             msg: 'Token needed',
         }); // Respond with an error if the token is missing
     }
-
+  
     try {
         // Verify the token and cast it to the responsePayload type
         const response = await verify(token, jwtPassword) as responsePayload;
         const id = response.id; // Extract the user ID from the verified token
-
+  
         console.log(response);
         // Store the user ID in the context for later use
         c.set('jwtPayload', id);
@@ -37,16 +35,17 @@ blogsRouter.use('/*', async (c, next) => {
             msg: 'Invalid token',
         }, 401); // Respond with an error if the token is invalid
     }
-});
+  });
 
 // Route to create a new blog post
-blogsRouter.post('/', async (c) => {
+blogsRouter.post('/add', async (c) => {
     // Get the database URL from environment variables
     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     // Initialize Prisma Client with the Accelerate extension
     const prisma = new PrismaClient({
         datasourceUrl: DATABASE_URL,
     }).$extends(withAccelerate());
+    console.log('inside');
 
     // Parse the request body as JSON
     const body = JSON.parse(await c.req.text());
@@ -65,9 +64,9 @@ blogsRouter.post('/', async (c) => {
             authorId,
         },
     });
-    console.log(response);
+    console.log('response',response);
 
-    return c.text('blog successfully created ');
+    return c.text('Blog successfully created');
 });
 
 // Route to update an existing blog post
@@ -103,8 +102,18 @@ blogsRouter.put('/', async (c) => {
 
 // Route to fetch a blog post by ID (Note: This implementation just returns a placeholder text)
 blogsRouter.get('/:id', async (c) => {
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL,
+    }).$extends(withAccelerate());
+    try {
+        const response = await prisma.post.findFirst({ where: { id: parseInt(c.req.param('id')) } });
+        return c.json(response); // Ensure you return the response
+    } catch (error) {
+        return c.json({ msg: 'Error fetching blog' }, 500); // Handle errors
+    }
     
-    return c.text(`Successfully fetched all the blogs by id !!!`);
 });
 
 // Route to fetch all blog posts in bulk
