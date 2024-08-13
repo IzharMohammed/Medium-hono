@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import Signup from "../pages/signup";
-import Signin from "../pages/signin";
+import Signup from "../pages/Signup";
+import Signin from "../pages/Signin";
 import Blogs from "../pages/Blogs";
 
 function MainRoutes() {
