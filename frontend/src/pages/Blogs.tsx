@@ -1,7 +1,12 @@
+import Layout from "../layout/Layout"
 
 function Blogs() {
   return (
-    <div>Blogs</div>
+    <Layout>
+      <div>
+        skjdhsdos
+      </div>
+    </Layout>
   )
 }
 
