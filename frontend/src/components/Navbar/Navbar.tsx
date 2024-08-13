@@ -1,9 +1,8 @@
-import React from 'react'
 
 function Navbar() {
     return (
         <>
-            <div className="border border-slate-500">
+            <div className="border border-slate-500 mb-8">
                 <nav className="flex justify-between p-4 border">
                     <div className=" text-2xl font-bold">
                         Medium
