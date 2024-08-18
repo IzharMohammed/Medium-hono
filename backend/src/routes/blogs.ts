@@ -4,6 +4,11 @@ import { withAccelerate } from '@prisma/extension-accelerate';
 import { env } from 'hono/adapter';
 import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
 import { createBlogInput, updateBlogInput } from '../zod';
+import cloudinaryUpload from '../utils/cloudinary';
+import { encodeBase64 } from 'hono/utils/encode';
+//import { v2 as cloudinary } from 'cloudinary';
+//import getDataUri from '../utils/dataUri';
+//import cloudinaryUpload from '../utils/cloudinary';
 const jwtPassword = 'secret'; // Secret key used for JWT signing and verification
 
 type responsePayload = {
@@ -39,6 +44,15 @@ blogsRouter.use('/*', async (c, next) => {
     }
 });
 
+// blogsRouter.use(async (c, next) => {
+//     // Configuration
+//     cloudinary.config({
+//         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//         api_key: process.env.CLOUDINARY_API_KEY,
+//         api_secret: process.env.CLOUDINARY_API_SECRET // Click 'View API Keys' above to copy your API secret
+//     });
+//     await next();
+// })
 
 function getPrismaClient(c: any) {
     // Get the database URL from environment variables
@@ -58,18 +72,43 @@ blogsRouter.post('/add', async (c) => {
     const prisma = getPrismaClient(c);
 
     // Parse the request body as JSON
-    const body = JSON.parse(await c.req.text());
+    //const body = JSON.parse(await c.req.text());
 
     // Get the author ID from the context (set by the middleware)
     const authorId = c.get('jwtPayload');
 
     //zod validation
-    const { success } = createBlogInput.safeParse(body);
+    //const { success } = createBlogInput.safeParse(body);
 
-    const { title, content, published } = body;
-    console.log([title, content, published, success]);
+    //const { title, content, published } = body;
 
-    if (success) {
+    const formData = await c.req.formData();
+
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+    const published = Boolean(formData.get('published'));
+    const file = formData.get('file')
+/*     c.req.parseBody().then(async (body) => {
+        const image = body['image'] as File;
+        const byteArrayBuffer = await image.arrayBuffer();
+        const base64 = encodeBase64(byteArrayBuffer);
+        const results = await cloudinary.uploader.upload(`data:image/png;base64,${base64}`);
+        console.log('results', results);
+        return c.json({ results });
+
+    }) */
+
+    //const fileUri = getDataUri(file);
+    //cloudinaryUpload(fileUri.content)
+
+
+    console.log([title, content, published, file]);
+
+
+    const userProvidedDate = new Date();
+    //  cloudinaryUpload(file)
+
+    if (true) {
         // Create a new blog post in the database
         const response = await prisma.post.create({
             data: {
@@ -77,6 +116,7 @@ blogsRouter.post('/add', async (c) => {
                 content,
                 published,
                 authorId,
+                createdAt: userProvidedDate
             },
         });
         console.log('response', response);
