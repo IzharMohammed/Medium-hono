@@ -8,15 +8,21 @@ function Signup() {
     const navigate = useNavigate();
 
     async function setSignUp() {
-     const response =    await axios.post('https://backend.izharmohammed21.workers.dev/api/v1/user/signup',{
-        email: email,
-        password: password
-    })
-    if(response){
-        navigate('/SignIn')
-    }
-        console.log(response);
-        
+        try {
+            const response = await axios.post('https://backend.izharmohammed21.workers.dev/api/v1/user/signup', {
+                email: email,
+                password: password
+            })
+            if (response.data == 'Invalid email' || 'Email and password are necessary' || 'Password must be minimum 4 characters') {
+                alert(response.data.msg);
+            } else {
+               // const jwt = response.data;
+                //localStorage.setItem('token', jwt);
+                navigate('/SignIn')
+            }
+        } catch (error) {
+            alert(error);
+        }
     }
 
     return (
@@ -51,7 +57,7 @@ function Signup() {
                     <button className="btn btn-ghost w-[24rem] p-2 border border-black font-bold bg-black text-white rounded" onClick={setSignUp}>
                         Sign up
                     </button>
-                    <div className="cursor-pointer" onClick={()=>navigate('/signin')}>Already have an account!!! Login</div>
+                    <div className="cursor-pointer" onClick={() => navigate('/signin')}>Already have an account!!! Login</div>
                 </div>
             </div>
         </div>

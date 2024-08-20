@@ -203,7 +203,8 @@ blogsRouter.post('/bulk', async (c) => {
 
     console.log('blogs', blogs);
 
-    return c.text('successfully fetched all the blogs');
+    // return c.text({'Fetched all the blogs',blogs});
+    return c.json(blogs)
 });
 
 export default blogsRouter; // Export the router for use in other parts of the application

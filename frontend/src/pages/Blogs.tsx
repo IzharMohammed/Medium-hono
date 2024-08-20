@@ -9,14 +9,6 @@ function Blogs() {
     <Layout>
       <div className=" flex flex-wrap gap-8 justify-evenly mb-12">
         <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
-        <BlogsCard />
       </div>
     </Layout>
   )

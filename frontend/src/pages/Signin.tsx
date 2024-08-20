@@ -11,7 +11,8 @@ function Signin() {
       'email': email,
       'password': password
     })
-    console.log(response);
+    localStorage.setItem('token', response.data);
+    navigate('/Blogs');
 
   }
   return (
@@ -51,6 +52,7 @@ function Signin() {
           >
             Sign In
           </button>
+          <div className="cursor-pointer" onClick={() => navigate('/SignUp')}>Don't have an account ? Sign up</div>
         </div>
       </div>
     </div>
