@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from 'cloudinary';
+import {v2 as cloudinary } from 'cloudinary';
 
 async function cloudinaryUpload(fileUri: any) {
 

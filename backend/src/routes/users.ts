@@ -22,8 +22,8 @@ userRouter.post('signup', async (c) => {
     }).$extends(withAccelerate());
 
     // Get the email and password from the request headers
-    const email = c.req.header('email');
-    const password = c.req.header('password');
+    const body = JSON.parse(await c.req.text());
+    const {email , password} = body;
 
     // Define validation schemas for email and password using Zod
     const emailSchema = zod.string().email();
@@ -78,8 +78,11 @@ userRouter.post('signin', async (c) => {
     }).$extends(withAccelerate());
 
     // Get the email and password from the request headers
-    const email = c.req.header('email');
-    const password = c.req.header('password');
+    // const email = c.req.header('email');
+    // const password = c.req.header('password');
+
+    const body = JSON.parse(await c.req.text());
+    const {email , password} = body;
 
     // Check if email and password are provided
     if (!email || !password) {

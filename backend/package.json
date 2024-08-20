@@ -5,6 +5,7 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^1.12.0",
     "@prisma/client": "^5.18.0",
     "@prisma/extension-accelerate": "^1.1.0",
     "cloudinary": "^2.4.0",
