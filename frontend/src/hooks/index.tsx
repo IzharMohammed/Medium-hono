@@ -18,6 +18,7 @@ export default function useBlogs() {
     //const decoded = jwtDecode<decodedToken>(token);
 
     useEffect(() => {
+        setLoading(true);
         const fetchBlogs = async () => {
             const headers = {
                 "Content-Type": "text/json",
@@ -28,12 +29,13 @@ export default function useBlogs() {
             })
             console.log(response);
             setBlogs(response.data);
+            setLoading(false);
         }
 
         fetchBlogs();
     }, [])
     return {
+        loading,
         blogs
     }
 }
-useBlogs
