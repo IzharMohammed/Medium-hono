@@ -10,7 +10,7 @@ function MainRoutes() {
         <Routes>
             <Route path="/SignUp" element={<Signup />}></Route>
             <Route path="/SignIn" element={<Signin />}></Route>
-            <Route path="/Blogs" element={<Blogs />}></Route>
+            <Route path="/" element={<Blogs />}></Route>
             <Route path="/FullBlog" element={<FullBlog />}></Route>
             <Route path="/FormPage" element={<FormPage />}></Route>
         </Routes>
