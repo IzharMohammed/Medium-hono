@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation} from "react-router-dom"
 import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import axios from "axios";
@@ -7,7 +7,6 @@ import Navbar from "../components/Navbar/Navbar";
 function FormPage() {
     const location = useLocation();
     const id = location.state;
-    const navigate = useNavigate();
 
     console.log(id);
     const editor = useRef(null);

@@ -4,6 +4,7 @@ import { withAccelerate } from '@prisma/extension-accelerate';
 import { env } from 'hono/adapter';
 import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
 import { createBlogInput, updateBlogInput } from '../zod';
+const {convert} = require('html-to-text')
 import cloudinaryUpload from '../utils/cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
 //import { v2 as cloudinary } from 'cloudinary';
@@ -85,7 +86,7 @@ blogsRouter.post('/add', async (c) => {
     const formData = await c.req.formData();
 
     const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
+    const content = convert(formData.get('content') as string);
     const published = Boolean(formData.get('published'));
     const file = formData.get('file')
 /*     c.req.parseBody().then(async (body) => {
