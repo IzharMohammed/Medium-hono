@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import luffy from '../../public/luffy.jpeg';
-import axios from "axios";
 //import { jwtDecode } from "jwt-decode";
-import { useEffect, useState } from "react";
 import useBlogs from "../hooks";
 
 
@@ -14,7 +12,7 @@ function BlogsCard() {
         return response + '.....';
     }
 
-    const blogs = useBlogs().blogs;
+    const blogs = useBlogs().blogs; 
     console.log('blogs', blogs);
 
 
@@ -23,7 +21,8 @@ function BlogsCard() {
 
         blogs.map(blog => (
             <div className="border border-black w-[24rem] h-[25rem] flex flex-col gap-2 cursor-pointer" onClick={() => {
-                navigate('/FullBlog')
+                
+                navigate('/FullBlog',{state : blog.id})
             }}>
                 <div>
                     <img src={luffy} className="size-full" />
