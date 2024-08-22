@@ -2,6 +2,10 @@ import { userRouter } from './routes/users';
 import blogsRouter from './routes/blogs';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { env } from 'hono/adapter'; // Import Hono's environment adapter
+import { withAccelerate } from '@prisma/extension-accelerate'; // Import Prisma's Accelerate extension for optimization
+import { PrismaClient } from '@prisma/client/edge'; // Import Prisma Client for database interactions
+
 import { v2 as cloudinary } from 'cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
 
@@ -31,6 +35,17 @@ app.use('*', cors())
 // )
 
 app.get('/', (c) => c.text('Hello World!'));
+app.get('/api/v1/allBlogs', async (c) => {
+    // Get the database URL from environment variables using the Hono adapter
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+    // Initialize Prisma Client with the Accelerate extension using the database URL
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL,
+    }).$extends(withAccelerate());
+    const blogs = (await prisma.post.findMany());
+
+    return c.json(blogs)
+})
 app.route('api/v1/user', userRouter);
 app.route('api/v1/blog', blogsRouter);
 

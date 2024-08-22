@@ -38,7 +38,7 @@ function Signup() {
                         <h2 className="font-semibold">Email</h2>
                         <input
                             type="text"
-                            className="border outline-none w-[24rem] p-2 rounded-md"
+                            className="border outline-none w-[24rem] p-2 rounded-md text-black"
                             placeholder="m@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)} />
@@ -47,7 +47,7 @@ function Signup() {
                         <h2 className="font-semibold">Password</h2>
                         <input
                             type="password"
-                            className="border outline-none rounded-md w-[24rem] p-2"
+                            className="border outline-none rounded-md w-[24rem] p-2 text-black"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)} />
                     </div>

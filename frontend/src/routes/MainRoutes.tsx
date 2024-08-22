@@ -4,13 +4,15 @@ import Signin from "../pages/Signin";
 import Blogs from "../pages/Blogs";
 import FullBlog from "../pages/FullBlog";
 import FormPage from "../pages/FormPage";
+import AllBlogs from "../pages/AllBlogs";
 
 function MainRoutes() {
     return (
         <Routes>
             <Route path="/SignUp" element={<Signup />}></Route>
             <Route path="/SignIn" element={<Signin />}></Route>
-            <Route path="/" element={<Blogs />}></Route>
+            <Route path="/Blogs" element={<Blogs />}></Route>
+            <Route path="/allBlogs" element={<AllBlogs />}></Route>
             <Route path="/FullBlog" element={<FullBlog />}></Route>
             <Route path="/FormPage" element={<FormPage />}></Route>
         </Routes>
