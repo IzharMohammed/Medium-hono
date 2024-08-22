@@ -13,7 +13,7 @@ function Blogs() {
           <input
             type="text"
             placeholder="search blog posts"
-            className="w-[15rem] p-5 rounded-md outline-none border border-slate-300 md:w-[70rem] h-[30px] "
+            className="w-[15rem] p-5 text-black rounded-md outline-none border border-slate-300 md:w-[70rem] h-[30px] "
             value={search}
             onChange={(e) => setsearch(e.target.value)}
           />

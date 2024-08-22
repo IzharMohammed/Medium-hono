@@ -1,10 +1,13 @@
 import './App.css'
 import MainRoutes from './routes/MainRoutes'
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   return (
     <>
-      <MainRoutes />
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <MainRoutes />
+      </ThemeProvider>
     </>
   )
 }

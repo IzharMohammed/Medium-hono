@@ -1,6 +1,6 @@
 function Footer() {
     return (
-        <footer className='border border-slate-700 bg-slate-100 p-3 h-28 relative mt-auto'>
+        <footer className='border border-slate-700 bg-gray-600 p-3 h-28 relative mt-auto'>
             <div className='flex justify-around'>
                 <div>
                     <div className='font-bold'>Company</div>
