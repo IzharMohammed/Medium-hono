@@ -3,9 +3,10 @@ import luffy from '../../public/luffy.jpeg';
 //import { jwtDecode } from "jwt-decode";
 import useBlogs from "../hooks";
 import Skeleton from "react-loading-skeleton";
+import { useState } from "react";
 
 
-function BlogsCard() {
+function BlogsCard({search}:any) {
     // const text = "Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money. Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money";
     const navigate = useNavigate();
     const truncate = (str: any, count: number) => {
@@ -17,8 +18,14 @@ function BlogsCard() {
     console.log('loading', loading);
 
 
+    const blogilter = () => {
+        const filtered = blogs.filter(blog => blog.title.includes(search))
+        console.log('Filtered', filtered);
 
-    <div>{loading}</div>
+    }
+
+    blogilter();
+
 
     return (
         <>
@@ -44,7 +51,7 @@ function BlogsCard() {
                             </div>
                         ))
                     ) :
-                    blogs.map(blog => (
+                    blogs.filter(blog => blog.title.includes(search)).map(blog => (
                         <div className="border border-slate-300 w-[25rem]  flex flex-col gap-4 cursor-pointer" onClick={() => {
                             navigate('/FullBlog', { state: blog.id })
                         }}>
