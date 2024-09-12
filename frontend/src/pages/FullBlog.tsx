@@ -7,9 +7,9 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css';
 
 interface Blog {
-    title?: string,
-    content?: string,
-    createdAt?: string
+    title: string,
+    content: string,
+    createdAt: string
 }
 
 function FullBlog() {
@@ -20,7 +20,7 @@ function FullBlog() {
     const id = location.state;
     console.log(id);
     const token = localStorage.getItem('token') as string;
-    const [blogs, setBlogs] = useState<Blog>({});
+    const [blog, setBlog] = useState<Blog>();
     const [loading, setloading] = useState(false);
 
     const fetchBlogById = async () => {
@@ -32,7 +32,7 @@ function FullBlog() {
             }
         });
         console.log(response);
-        setBlogs(response.data);
+        setBlog(response.data);
         setloading(false);
     }
 
@@ -43,21 +43,27 @@ function FullBlog() {
     return (
         <Layout>
             {
-                loading ?
+                (loading || !blog) 
+                
+                ?
                     <div className=" w-[60rem] flex flex-col m-auto h-screen p-8 ">
                         <div>
-                            <Skeleton/>
+                            <Skeleton />
                         </div>
                         <div className="text-center mt-8 font-bold  text-4xl"><Skeleton /> </div>
                         <div className="text-center mt-8 mb-6 font-semibold  text-1xl border-b-2 border-slate-300">created at :-<Skeleton /> </div>
                         <div className="text-left text-1xl font-medium p-4 "><Skeleton count={15} /></div>
-                    </div> : <div className=" w-[60rem] flex flex-col m-auto h-screen p-8 ">
+                    </div>
+
+                    :
+
+                    <div className=" w-[60rem] flex flex-col m-auto h-screen p-8 ">
                         <div>
                             <img src={luffy} className="w-[40rem] m-auto" />
                         </div>
-                        <div className="text-center mt-8 font-bold  text-4xl">{blogs.title}</div>
-                        <div className="text-center mt-8 mb-6 font-semibold  text-1xl border-b-2 border-slate-300">created at :-{blogs.createdAt?.split('T')[0]}</div>
-                        <div className="text-left text-1xl font-medium p-4 ">{blogs.content}</div>
+                        <div className="text-center mt-8 font-bold  text-4xl">{blog.title}</div>
+                        <div className="text-center mt-8 mb-6 font-semibold  text-1xl border-b-2 border-slate-300">created at :-{blog.createdAt?.split('T')[0]}</div>
+                        <div className="text-left text-1xl font-medium p-4 " dangerouslySetInnerHTML={{ __html: blog.content }} ></div>
                     </div>
             }
 

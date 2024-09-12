@@ -18,7 +18,7 @@ function Signup() {
             } else {
                // const jwt = response.data;
                 //localStorage.setItem('token', jwt);
-                navigate('/SignIn')
+                navigate('/')
             }
         } catch (error) {
             alert(error);
@@ -57,7 +57,7 @@ function Signup() {
                     <button className="btn btn-ghost w-[24rem] p-2 border border-black font-bold bg-black text-white rounded" onClick={setSignUp}>
                         Sign up
                     </button>
-                    <div className="cursor-pointer" onClick={() => navigate('/signin')}>Already have an account!!! Login</div>
+                    <div className="cursor-pointer" onClick={() => navigate('/')}>Already have an account!!! Login</div>
                 </div>
             </div>
         </div>

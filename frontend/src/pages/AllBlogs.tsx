@@ -52,7 +52,7 @@ function AllBlogs() {
                         />
                         <button className="bg-black text-white w-[7rem] h-[38px] rounded-lg">search</button>
                     </div>
-                    <div className=" flex flex-wrap gap-8 justify-evenly mb-12">
+                    <div className=" flex flex-wrap gap-8 justify-evenly  mb-12">
                         <div className='flex flex-wrap gap-8 justify-evenly mb-12'>
                             {
                                 loading ?

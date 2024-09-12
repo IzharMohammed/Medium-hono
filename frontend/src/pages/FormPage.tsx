@@ -46,11 +46,11 @@ function FormPage() {
                 </div>
                 <div>
                     <h3 className="font-semibold">Title</h3>
-                    <input value={title} onChange={(e) => setTitle(e.target.value)} className="border border-slate-300 outline-none w-full rounded-sm h-[2rem] mb-4" type="text" />
+                    <input value={title} onChange={(e) => setTitle(e.target.value)} className="border border-slate-300 outline-none w-full rounded-sm h-[2rem] mb-4 text-black" type="text" />
                     <h3 className="font-semibold">Content</h3>
                     <div >
                         <JoditEditor
-                            className="overflow-auto"
+                            className="overflow-auto text-black"
                             ref={editor}
                             value={content}
                             onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons

@@ -8,8 +8,13 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
 } from "../ui/dropdown-menu"
 import { useTheme } from "../theme-provider"
+import { useState } from "react";
 
 interface decodedToken {
     email: string,
@@ -19,12 +24,22 @@ interface decodedToken {
 function Navbar() {
     const token = localStorage.getItem('token') as string;
     const decoded = jwtDecode<decodedToken>(token);
+    const [position, setPosition] = useState("bottom")
     const navigate = useNavigate();
     const goToHomePage = () => {
         navigate('/allBlogs');
     }
     const { setTheme } = useTheme()
 
+    const handleSignIn = () => {
+        localStorage.removeItem('token')
+        navigate('/')
+    }
+
+    const handleSignUp = () => {
+        localStorage.removeItem('token')
+        navigate('/SignUp')
+    }
 
     return (
         <>
@@ -60,10 +75,22 @@ function Navbar() {
                             <button type="button" onClick={() => navigate('/FormPage', { state: decoded.id })} className="w-[6rem] h-[2rem] flex justify-center items-center text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm p-5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Publish</button>
                         </div>
                         <div>
-                        <button type="button" onClick={() => navigate('/Blogs')} className="w-[6.3rem] h-[2rem] flex justify-center items-center text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm p-5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">My Blogs</button>
+                            <button type="button" onClick={() => navigate('/Blogs')} className="w-[6.3rem] h-[2rem] flex justify-center items-center text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm p-5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">My Blogs</button>
                         </div>
                         <div className="flex justify-center items-center">
-                        <div>{decoded.email}</div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline">{decoded.email}</Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
+                                        <DropdownMenuRadioItem value="top" onClick={handleSignIn}>sign in</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="bottom" onClick={handleSignUp}>sign up</DropdownMenuRadioItem>
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <div></div>
                         </div>
                     </div>
                 </nav>
