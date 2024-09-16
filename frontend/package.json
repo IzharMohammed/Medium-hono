@@ -29,6 +29,7 @@
     "react-loading-skeleton": "^3.4.0",
     "react-router-dom": "^6.26.0",
     "reactstrap": "^9.2.2",
+    "socket.io-client": "^4.7.5",
     "tailwind-merge": "^2.5.2",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7"

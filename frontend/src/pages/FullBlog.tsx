@@ -25,7 +25,7 @@ function FullBlog() {
 
     const fetchBlogById = async () => {
         setloading(true);
-        const response = await axios.get(`${process.env.API_URL}/api/v1/blog/${id}`, {
+        const response = await axios.get(`https://backend.izharmohammed21.workers.dev/api/v1/blog/${id}`, {
             headers: {
                 "Content-Type": "text/json",
                 "token": token
