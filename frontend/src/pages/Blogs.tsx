@@ -3,7 +3,6 @@ import BlogsCard from "../components/BlogsCard"
 import Layout from "../layout/Layout"
 
 function Blogs() {
-  //  https://backend.izharmohammed21.workers.dev
   const [search, setsearch] = useState('');
 
   return (
