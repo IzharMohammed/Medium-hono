@@ -32,8 +32,10 @@ const ChatPage = ({ socket }: ChatPageProps) => {
     }, [socket, messages])
     console.log('socket', socket);
     const token = localStorage.getItem('token') as string;
-    const { email }: { email: string } = jwtDecode(token);
-    console.log(email);
+    console.log(jwtDecode(token));
+    
+    const { username }: { username: string } = jwtDecode(token);
+    console.log(username);
 
     return (
         <div className="flex border border-white h-screen">
@@ -42,9 +44,9 @@ const ChatPage = ({ socket }: ChatPageProps) => {
             </div>
             <div className=" border border-green-600 w-full flex flex-col ">
                 <div className="h-5/6">
-                    <ChatBody messages={messages} email={email}/>
+                    <ChatBody messages={messages} username={username}/>
                 </div>
-                <ChatFooter socket={socket} email={email} />
+                <ChatFooter socket={socket} username={username} />
             </div>
         </div>
     )

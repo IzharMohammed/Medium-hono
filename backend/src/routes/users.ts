@@ -23,7 +23,7 @@ userRouter.post('signup', async (c) => {
 
     // Get the email and password from the request headers
     const body = JSON.parse(await c.req.text());
-    const {email , password} = body;
+    const {email , password, username} = body;
 
     // Define validation schemas for email and password using Zod
     const emailSchema = zod.string().email();
@@ -58,7 +58,8 @@ userRouter.post('signup', async (c) => {
     const response = await prisma.user.create({
         data: {
             email,
-            password
+            password,
+            name: username
         }
     });
     console.log(response); // Log the response from the database
@@ -82,7 +83,7 @@ userRouter.post('signin', async (c) => {
     // const password = c.req.header('password');
 
     const body = JSON.parse(await c.req.text());
-    const {email , password} = body;
+    const {email , password, username} = body;
 
     // Check if email and password are provided
     if (!email || !password) {
@@ -103,7 +104,7 @@ userRouter.post('signin', async (c) => {
     // Get the user ID from the response (if found)
     const id = response?.id;
     // Create a JWT token with the user's email and ID
-    const token = await sign({ email, id }, jwtPassword);
+    const token = await sign({ email, id, username }, jwtPassword);
 
     console.log(response); // Log the response again for verification
 

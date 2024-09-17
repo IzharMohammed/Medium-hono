@@ -4,17 +4,17 @@ import { Input } from "../../components/ui/input";
 import { useState } from "react";
 interface ChatFooterProps {
     socket: Socket,
-    email: string
+    username: string
 }
 
-const ChatFooter = ({ socket, email }: ChatFooterProps) => {
+const ChatFooter = ({ socket, username }: ChatFooterProps) => {
     const [message, setMessage] = useState('');
     const handleSendMessage = (e: any) => {
         e.preventDefault();
-        if (email) {
+        if (username) {
             socket.emit("message", {
                 text: message,
-                name: email,
+                name: username,
                 socketId: socket.id,
                 id: `${socket.id}${Math.random()}`
             })

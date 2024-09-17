@@ -18,7 +18,8 @@ import { useState } from "react";
 
 interface decodedToken {
     email: string,
-    id: number
+    id: number,
+    username: string
 }
 
 function Navbar() {
@@ -80,7 +81,7 @@ function Navbar() {
                         <div className="flex justify-center items-center">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">{decoded.email}</Button>
+                                    <Button variant="outline">{decoded.username}</Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuSeparator />

@@ -7,17 +7,17 @@ interface Message {
 }
 interface ChatBodyProps {
     messages: Message[],
-    email: string
+    username: string
 }
 
-const ChatBody = ({ messages, email }: ChatBodyProps) => {
+const ChatBody = ({ messages, username }: ChatBodyProps) => {
     console.log('messages', messages);
 
     return (
         <div>
             {
                 messages.map(message => 
-                    message.name === email ?
+                    message.name === username ?
                         (<div>
                             <p>You</p>
                             <div>{message.text}</div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 function Signin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const[username, setUsername]= useState('');
   const navigate = useNavigate();
 
   async function setSignIn() {
@@ -11,7 +12,8 @@ function Signin() {
     
     const response = await axios.post(`https://backend.izharmohammed21.workers.dev/api/v1/user/signin`, {
       'email': email,
-      'password': password
+      'password': password,
+      'username': username,
     })
     localStorage.setItem('token', response.data);
     navigate('/allBlogs');
@@ -19,13 +21,23 @@ function Signin() {
   }
   return (
     <div className=" h-screen  flex justify-center items-center">
-      <div className="border border-slate-600 w-[35rem] h-[24rem] m-auto flex flex-col justify-center items-center gap-9 rounded-md">
+      <div className="border border-slate-600 w-[35rem] h-[30rem] m-auto flex flex-col justify-center items-center gap-9 rounded-md">
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl font-semibold ">Login</h1>
           <p className="text-slate-500">Enter your email and password to access your account</p>
         </div>
 
         <div className="flex flex-col gap-4">
+        <div>
+            <h2 className="font-semibold">username</h2>
+            <input
+              type="text"
+              className="border outline-none rounded-md w-[24rem] p-2 text-black"
+               placeholder="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
           <div>
             <h2 className="font-semibold">Email</h2>
             <input
@@ -45,6 +57,7 @@ function Signin() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+        
         </div>
 
         <div>
