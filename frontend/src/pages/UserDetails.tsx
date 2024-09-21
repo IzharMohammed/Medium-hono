@@ -32,76 +32,80 @@ function UserDetails() {
         <>
             <Layout>
                 <div className="h-screen w-full">
-                    <div className="flex border border-red-800">
-                        <div className="border border-slate-500 h-[25rem]
+                    <div className="m-auto">
+                        <div className="flex m-auto justify-around gap-8 w-[80rem]">
+                            <div className="
+                                    border
+                                  border-slate-300 
+                                    h-[25rem]
                                     w-[23rem]          /* Default width for small screens */
-                                    m-auto mt-8 p-8
+                                    mt-8 p-8
                                     md:w-[40rem]       /* Width 40rem on medium screens and above */
-                                    md:border-green-800
                         ">
-                            <div className="flex gap-12 mb-12">
+                                <div className="flex gap-12 mb-12">
+                                    <div>
+                                        <img src={Luffy} className="w-[8rem] rounded-full h-[8rem]" />
+                                    </div>
+                                    <div className="flex flex-col gap-4 mt-4">
+                                        <div className="font-semibold text-3xl">{decoded.username}</div>
+                                        <div className="text-slate-500">{decoded.email}</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-8">
+                                    <div>Software Developer | Coffee Enthusiast</div>
+                                    <div className="flex ">
+                                        <div>1234 Followers |  </div>
+                                        <div> 567 Following</div>
+                                    </div>
+                                    <Button className="w-[10rem]">Follow</Button>
+                                </div>
+                            </div>
+                            <div className="border border-slate-300 w-[25rem] h-[35rem]  m-8 p-8 flex flex-col gap-8 overflow-y-auto">
                                 <div>
-                                    <img src={Luffy} className="w-[8rem] rounded-full h-[8rem]" />
+                                    <div className="font-semibold text-3xl">Registered Users</div>
+                                    <div className="text-slate-500">Connect with other users</div>
                                 </div>
-                                <div className="flex flex-col gap-4 mt-4">
-                                    <div className="font-semibold text-3xl">{decoded.username}</div>
-                                    <div className="text-slate-500">{decoded.email}</div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-8">
-                                <div>Software Developer | Coffee Enthusiast</div>
-                                <div className="flex ">
-                                    <div>1234 Followers |  </div>
-                                    <div> 567 Following</div>
-                                </div>
-                                <Button className="w-[10rem]">Follow</Button>
-                            </div>
-                        </div>
-                        <div className="border border-slate-300 w-[25rem] h-[35rem]  m-8 p-8 flex flex-col gap-8 overflow-y-auto">
-                            <div>
-                                <div className="font-semibold text-3xl">Registered Users</div>
-                                <div className="text-slate-500">Connect with other users</div>
-                            </div>
 
-                            {
-                                loading ?
-                                    (
-                                        Array.from({ length: 3 }).map((_, index) => (
-                                            <div
-                                                key={index}
-                                                className="border border-slate-100 w-[19rem] flex flex-col gap-4 cursor-pointer"
-                                            >
-                                                <div>
-                                                    <Skeleton height={5} />
-                                                </div>
-                                                <div className="p-2 flex flex-col gap-5">
-                                                    <div className="text-3xl font-bold">
-                                                        <Skeleton width={`100%`} />
-                                                    </div>
+                                {
+                                    loading ?
+                                        (
+                                            Array.from({ length: 3 }).map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="border border-slate-100 w-[19rem] flex flex-col gap-1 cursor-pointer"
+                                                >
                                                     <div>
-                                                        <Skeleton count={1} />
+                                                        <Skeleton height={5} />
                                                     </div>
+                                                    <div className="p-2 flex flex-col gap-5">
+                                                        <div className="text-3xl font-bold">
+                                                            <Skeleton width={`100%`} />
+                                                        </div>
+                                                        <div>
+                                                            <Skeleton count={1} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) :
+                                        registeredUsers &&
+                                        registeredUsers.map(user => (
+                                            <div className="w-full h-[70px] ">
+                                                <div className="flex gap-0 justify-around mb-0 px-2">
+                                                    <div>
+                                                        <img src={Luffy} className="w-[45px] rounded-full h-[45px]" />
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="font-medium text-sm">{user.name}</div>
+                                                        <div className="text-slate-500">{user.email}</div>
+                                                    </div>
+                                                    <Button className="my-auto">Follow</Button>
                                                 </div>
                                             </div>
                                         ))
-                                    ) :
-                                    registeredUsers &&
-                                    registeredUsers.map(user => (
-                                        <div className="w-full h-[70px] border border-red-700">
-                                            <div className="flex gap-0 justify-around mb-0 px-2">
-                                                <div>
-                                                    <img src={Luffy} className="w-[45px] rounded-full h-[45px]" />
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <div className="font-medium text-sm">{user.name}</div>
-                                                    <div className="text-slate-500">{user.email}</div>
-                                                </div>
-                                                <Button className="my-auto">Follow</Button>
-                                            </div>
-                                        </div>
-                                    ))
-                            }
+                                }
 
+                            </div>
                         </div>
                     </div>
                 </div>

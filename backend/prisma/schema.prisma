@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,19 +8,49 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  name     String?
-  posts    Post[]
+  id                     Int             @id @default(autoincrement())
+  email                  String          @unique
+  password               String
+  name                   String
+  posts                  Post[]
+  sentFollowRequests     FollowRequest[] @relation("SentFollowRequest")
+  receivedFollowRequests FollowRequest[] @relation("ReceivedFollowRequest")
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   content   String
-  published Boolean @default(false)
+  published Boolean  @default(false)
   createdAt DateTime @default(now()) @db.Date
-  author    User    @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
+}
+
+model FollowRequest {
+  id Int @id @default(autoincrement())
+
+  // Sender side of the relationship
+  sender   User @relation("SentFollowRequest", fields: [senderId], references: [id])
+  senderId Int
+
+  // Receiver side of the relationship
+  receiver   User @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
+  receiverId Int
+
+  status    FollowStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  // Enforce uniqueness to prevent duplicate follow requests
+  @@unique([senderId, receiverId, status])
+
+  // Indexes to speed up queries based on senderId and receiverId
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
