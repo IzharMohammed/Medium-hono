@@ -86,6 +86,7 @@ function Navbar() {
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuSeparator />
                                     <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
+                                        <DropdownMenuRadioItem value="profile" onClick={navigate('/userDetails')}>Profile</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="top" onClick={handleSignIn}>sign in</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="bottom" onClick={handleSignUp}>sign up</DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>

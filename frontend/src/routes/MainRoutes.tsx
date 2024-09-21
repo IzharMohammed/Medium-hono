@@ -7,6 +7,7 @@ import FormPage from "../pages/FormPage";
 import AllBlogs from "../pages/AllBlogs";
 import * as io from "socket.io-client";
 import ChatPage from "../pages/ChatPage";
+import UserDetails from "../pages/UserDetails";
 
 const socket = io.connect("http://localhost:4000");
 
@@ -20,6 +21,7 @@ function MainRoutes() {
             <Route path="/FullBlog" element={<FullBlog />}></Route>
             <Route path="/FormPage" element={<FormPage />}></Route>
             <Route path="/chatPage" element={<ChatPage socket={socket} />}></Route>
+            <Route path="/userDetails" element={<UserDetails />}></Route>
         </Routes>
     )
 }
