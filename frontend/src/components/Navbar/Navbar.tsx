@@ -1,4 +1,3 @@
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
 
@@ -8,23 +7,21 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-    DropdownMenuLabel,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
 } from "../ui/dropdown-menu"
 import { useTheme } from "../theme-provider"
 import { useState } from "react";
+import useLocalStorage from "./useLocalStorage";
 
-interface decodedToken {
-    email: string,
-    id: number,
-    username: string
-}
+
 
 function Navbar() {
-    const token = localStorage.getItem('token') as string;
-    const decoded = jwtDecode<decodedToken>(token);
+  const {decoded} =  useLocalStorage();
+  console.log('decoded',decoded);
+  
+   
     const [position, setPosition] = useState("bottom")
     const navigate = useNavigate();
     const goToHomePage = () => {
@@ -40,6 +37,10 @@ function Navbar() {
     const handleSignUp = () => {
         localStorage.removeItem('token')
         navigate('/SignUp')
+    }
+
+    const handleProfilePage = () => {
+        navigate('/userDetails')
     }
 
     return (
@@ -86,7 +87,8 @@ function Navbar() {
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuSeparator />
                                     <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-                                        <DropdownMenuRadioItem value="profile" onClick={navigate('/userDetails')}>Profile</DropdownMenuRadioItem>
+                                        
+                                        <DropdownMenuRadioItem value="profile" onClick={handleProfilePage}>Profile</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="top" onClick={handleSignIn}>sign in</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="bottom" onClick={handleSignUp}>sign up</DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>

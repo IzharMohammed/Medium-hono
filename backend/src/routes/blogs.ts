@@ -7,6 +7,7 @@ import { createBlogInput, updateBlogInput } from '../zod';
 const {convert} = require('html-to-text')
 import cloudinaryUpload from '../utils/cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
+import getPrismaClient from '../lib/getPrismaClient';
 //import { v2 as cloudinary } from 'cloudinary';
 //import getDataUri from '../utils/dataUri';
 //import cloudinaryUpload from '../utils/cloudinary';
@@ -55,16 +56,16 @@ blogsRouter.use('/*', async (c, next) => {
 //     await next();
 // })
 
-function getPrismaClient(c: any) {
-    // Get the database URL from environment variables
-    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
-    // Initialize Prisma Client with the Accelerate extension
-    const prisma = new PrismaClient({
-        datasourceUrl: DATABASE_URL,
-    }).$extends(withAccelerate());
-    console.log('inside');
-    return prisma;
-}
+// function getPrismaClient(c: any) {
+//     // Get the database URL from environment variables
+//     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+//     // Initialize Prisma Client with the Accelerate extension
+//     const prisma = new PrismaClient({
+//         datasourceUrl: DATABASE_URL,
+//     }).$extends(withAccelerate());
+//     console.log('inside');
+//     return prisma;
+// }
 
 
 // Route to create a new blog post

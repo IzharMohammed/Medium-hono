@@ -7,6 +7,7 @@ import { z as zod } from 'zod'; // Import the Zod library for schema validation
 import { PrismaClient } from '@prisma/client/edge'; // Import Prisma Client for database interactions
 import { withAccelerate } from '@prisma/extension-accelerate'; // Import Prisma's Accelerate extension for optimization
 import { env } from 'hono/adapter'; // Import Hono's environment adapter
+import getPrismaClient from '../lib/getPrismaClient';
 
 // Create a new Hono router instance for user-related routes
 export const userRouter = new Hono();
@@ -111,3 +112,10 @@ userRouter.post('signin', async (c) => {
     // Return the generated JWT token
     return c.text(token);
 });
+
+
+userRouter.get('allUsers', async (c) => {
+    const prisma = getPrismaClient(c);
+    const users = await prisma.user.findMany();
+    return c.json(users);
+})
