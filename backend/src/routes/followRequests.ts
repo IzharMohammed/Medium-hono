@@ -43,8 +43,8 @@ interface FollowRequestBody {
 
 // Sender sends a follow request to a receiver
 followRequestsRouter.post('/sentRequest', async (c) => {
-
     const prisma = getPrismaClient(c);
+
 
     // Parse the JSON body
     const body = await c.req.json<FollowRequestBody>();
@@ -129,7 +129,6 @@ followRequestsRouter.get('/received', async (c) => {
 
 async function acceptFollowRequest(c: any, senderId: string, receiverId: string) {
 
-
     const prisma = getPrismaClient(c);
     // const followRequestId = await prisma.followRequest.findFirst({
     //     where: {
@@ -178,9 +177,51 @@ followRequestsRouter.patch('/:id/accept', async (c) => {
 
 })
 
-// Receiver rejects a follow request
-followRequestsRouter.patch('/:id/reject', async (c) => {
+async function rejectFollowRequest(c: any, senderId: string, receiverId: string) {
+    const prisma = getPrismaClient(c);
+    console.log('inside reject');
 
+    try {
+        const existingFollowRequests = await prisma.followRequest.findFirst({
+            where: {
+                senderId: parseInt(senderId),
+                receiverId: parseInt(receiverId),
+                status: "REJECTED"
+            }
+        })
+        console.log('true',existingFollowRequests);
+        
+        if (existingFollowRequests?.status=="REJECTED") {
+            
+            return c.json({ msg: 'Already Rejected' })
+        }
+
+        const updateFollowRequests = await prisma.followRequest.updateMany({
+            where: {
+                senderId: parseInt(senderId),
+                receiverId: parseInt(receiverId),
+                status: "PENDING"
+            },
+            data: {
+                status: "REJECTED"
+            }
+        })
+        console.log('update many', updateFollowRequests);
+
+        return c.json({ msg: "Rejected successfully" })
+    } catch (error) {
+        return c.json({ msg: 'Error in rejecting' })
+    }
+}
+
+// Receiver rejects a follow request
+followRequestsRouter.patch('/:senderId/reject', async (c) => {
+    const senderId = c.req.param('senderId');
+    const receiverId = c.get('jwtPayload');
+    console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
+
+     const response = await rejectFollowRequest(c, senderId, receiverId);
+    return response;
 })
 
 
