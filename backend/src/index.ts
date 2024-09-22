@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client/edge'; // Import Prisma Client for 
 
 import { v2 as cloudinary } from 'cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
+import followRequestsRouter from './routes/followRequests';
 
 const app = new Hono();
 app.use('*', cors())
@@ -48,6 +49,7 @@ app.get('/api/v1/allBlogs', async (c) => {
 })
 app.route('api/v1/user', userRouter);
 app.route('api/v1/blog', blogsRouter);
+app.route('api/v1/followRequests',followRequestsRouter);
 
 
 export default app;
