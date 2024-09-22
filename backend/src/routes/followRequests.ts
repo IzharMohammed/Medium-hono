@@ -127,38 +127,45 @@ followRequestsRouter.get('/received', async (c) => {
     }
 })
 
-async function acceptFollowRequest(c: any, senderId: string, receiverId: string) {
+async function acceptFollowRequest(c: any, senderId: any, receiverId: string) {
 
     const prisma = getPrismaClient(c);
-    // const followRequestId = await prisma.followRequest.findFirst({
-    //     where: {
-    //         senderId:parseInt(senderId),
-    //         receiverId:parseInt(receiverId),
-    //     },
-    //     select: {id: true}
-    // });
-    const updateFollowRequest = await prisma.followRequest.updateMany({
-        where: {
-            senderId: parseInt(senderId),
-            receiverId: parseInt(receiverId),
-            status: "PENDING"
-        },
-        data: {
-            status: "ACCEPTED"
+    try {
+        const existingAcceptedRequests = await prisma.followRequest.findFirst({
+            where: {
+                senderId: parseInt(senderId),
+                receiverId: parseInt(receiverId),
+                status: "ACCEPTED"
+            }
+        })
+
+        if (existingAcceptedRequests) {
+            return c.json({ msg: existingAcceptedRequests })
         }
-    })
-    console.log(`updateFollowRequest: ${updateFollowRequest}`);
+
+        const updateFollowRequest = await prisma.followRequest.updateMany({
+            where: {
+                senderId: parseInt(senderId),
+                receiverId: parseInt(receiverId),
+                status: "PENDING"
+            },
+            data: {
+                status: "ACCEPTED"
+            }
+        })
+        return c.json({ msg: updateFollowRequest })
+    } catch (error) {
+        c.json({msg:error})
+    }
 
 }
 
 //  Receiver accepts a follow request
-followRequestsRouter.patch('/:id/accept', async (c) => {
-    const senderId = c.req.param('id');
-    const receiverId = c.get('jwtPayload')
+followRequestsRouter.patch('/:senderId/accept', async (c) => {
+    const senderId = c.req.param('senderId');
+    const receiverId = c.get('jwtPayload');
 
-    console.log(`response : ${receiverId}`);
-
-    const followRequest = await acceptFollowRequest(c, senderId, receiverId);
+    const response = await acceptFollowRequest(c, senderId, receiverId);
 
     // if(followRequest){
     //     const roomId = `room_${followRequest.senderId}_${followRequest.receiverId}`;
@@ -173,7 +180,7 @@ followRequestsRouter.patch('/:id/accept', async (c) => {
     //     return c.text(`Error creating socket IO room : ${error} `)
     // }
     // }
-    return c.text(`accepted`);
+    return response;
 
 })
 
@@ -189,11 +196,11 @@ async function rejectFollowRequest(c: any, senderId: string, receiverId: string)
                 status: "REJECTED"
             }
         })
-        console.log('true',existingFollowRequests);
-        
-        if (existingFollowRequests?.status=="REJECTED") {
-            
-            return c.json({ msg: 'Already Rejected' })
+        console.log('true', existingFollowRequests);
+
+        if (existingFollowRequests?.status == "REJECTED") {
+
+            return c.json({ msg: existingFollowRequests })
         }
 
         const updateFollowRequests = await prisma.followRequest.updateMany({
@@ -208,7 +215,7 @@ async function rejectFollowRequest(c: any, senderId: string, receiverId: string)
         })
         console.log('update many', updateFollowRequests);
 
-        return c.json({ msg: "Rejected successfully" })
+        return c.json({ msg: updateFollowRequests })
     } catch (error) {
         return c.json({ msg: 'Error in rejecting' })
     }
@@ -220,15 +227,9 @@ followRequestsRouter.patch('/:senderId/reject', async (c) => {
     const receiverId = c.get('jwtPayload');
     console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
 
-     const response = await rejectFollowRequest(c, senderId, receiverId);
+    const response = await rejectFollowRequest(c, senderId, receiverId);
     return response;
 })
-
-
-
-
-
-
 
 
 
