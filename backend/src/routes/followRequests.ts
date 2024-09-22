@@ -34,19 +34,24 @@ followRequestsRouter.use('/*', async (c, next) => {
         }, 401); // Respond with an error if the token is invalid
     }
 });
+
 // Define the interface for the request body
 interface FollowRequestBody {
     senderId: string; // Initially as string since JSON parses numbers as strings
     receiverId: string;
-  }
+}
+
 // Sender sends a follow request to a receiver
 followRequestsRouter.post('/sentRequest', async (c) => {
-    const prisma= getPrismaClient(c);
+
+    const prisma = getPrismaClient(c);
+
     // Parse the JSON body
     const body = await c.req.json<FollowRequestBody>();
     const { senderId, receiverId } = body;
+
     console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
-    
+
     try {
         const existingRequest = await prisma.followRequest.findFirst({
             where: {
@@ -55,9 +60,11 @@ followRequestsRouter.post('/sentRequest', async (c) => {
                 status: "PENDING"
             }
         })
+
         if (existingRequest) {
             return c.json({ message: 'Follow request already exists' });
         }
+
         const newFollowRequest = await prisma.followRequest.create({
             data: {
                 sender: {
@@ -72,20 +79,52 @@ followRequestsRouter.post('/sentRequest', async (c) => {
 
     } catch (error) {
         console.log(`Error creating follow request: ${error}`);
-        return c.json({message: "Error creating follow request"});
+        return c.json({ message: "Error creating follow request" });
     }
-
-
 })
+
 
 // Retrieve all follow requests sent by the authenticated user
 followRequestsRouter.get('/sent', async (c) => {
+    const prisma = getPrismaClient(c);
 
+    const senderId = c.get('jwtPayload');
+    try {
+        const senderRequests = await prisma.followRequest.findMany({
+            where: {
+                senderId
+            }
+        })
+        console.log(`sender Requests :- ${senderRequests}`);
+        return c.json({ 'sender Requests': senderRequests });
+
+    } catch (error) {
+        return c.json({ message: -`Error retreiving requests send by sender` })
+    }
 })
 
+interface ReceiverRequestBody {
+    receiverId: string
+}
 // Retrieve all follow requests received by the authenticated user
 followRequestsRouter.get('/received', async (c) => {
-
+    const prisma = getPrismaClient(c);
+    const body = await c.req.json<ReceiverRequestBody>();
+    const { receiverId } = body;
+    try {
+        const receivedRequests = await prisma.followRequest.findMany({
+            where: {
+                receiverId: parseInt(receiverId)
+            }
+        })
+        if (receivedRequests.length > 0) {
+            return c.json({ 'Incoming follow requests': receivedRequests })
+        } else {
+            return c.json({ msg: 'No incoming follow requests' })
+        }
+    } catch (error) {
+        return c.json({ message: -`Error retreiving incoming follow requests` })
+    }
 })
 
 async function acceptFollowRequest(c: any, senderId: string, receiverId: string) {
