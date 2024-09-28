@@ -22,20 +22,22 @@ followRequestsRouter.use('/*', async (c, next) => {
         }); // Respond with an error if the token is missing
     }
 
-    try {
-        // Verify the token and cast it to the responsePayload type
-        const response = await verify(token, jwtPassword) as responsePayload;
-        const id = response.id; // Extract the user ID from the verified token
+    // try {
 
-        console.log(response);
-        // Store the user ID in the context for later use
-        c.set('jwtPayload', id);
-        await next(); // Proceed to the next middleware or route handler
-    } catch (error) {
-        return c.json({
-            msg: 'Invalid token',
-        }, 401); // Respond with an error if the token is invalid
-    }
+    // Verify the token and cast it to the responsePayload type
+    const response = await verify(token, jwtPassword) as responsePayload;
+    const id = response.id; // Extract the user ID from the verified token
+
+    console.log('decoded', response);
+    // Store the user ID in the context for later use
+    c.set('jwtPayload', id);
+    console.log('verify');
+    await next(); // Proceed to the next middleware or route handler
+    // } catch (error) {
+    //     return c.json({
+    //         msg: 'Invalid token',
+    //     }, 401); // Respond with an error if the token is invalid
+    // }
 });
 
 // Define the interface for the follow request body
@@ -148,7 +150,7 @@ async function acceptFollowRequest(c: any, senderId: any, receiverId: string) {
         })
 
         if (existingAcceptedRequests) {
-            return c.json({ msg: existingAcceptedRequests }) // Inform the user that the request has already been accepted
+            return existingAcceptedRequests; // Inform the user that the request has already been accepted
         }
 
         // Update the follow request status to "ACCEPTED"
@@ -162,42 +164,49 @@ async function acceptFollowRequest(c: any, senderId: any, receiverId: string) {
                 status: "ACCEPTED"
             }
         })
-        return c.json({ msg: updateFollowRequest }) // Confirm that the request has been accepted
+        return updateFollowRequest; // Confirm that the request has been accepted
     } catch (error) {
-        c.json({ msg: error }) // Respond with an error if something goes wrong
+        return c.json({ msg: error }) // Respond with an error if something goes wrong
     }
 }
 
 // Route for the receiver to accept a follow request
 followRequestsRouter.patch('/:senderId/accept', async (c) => {
     const senderId = c.req.param('senderId'); // Extract the sender's ID from the URL parameters
+    console.log(c.get('jwtPayload'));
+
     const receiverId = c.get('jwtPayload'); // Retrieve the authenticated receiver's ID from the context
 
     // Call the function to accept the follow request
     const response = await acceptFollowRequest(c, senderId, receiverId);
+    console.log('response', response);
 
-    // Uncomment and modify the following block if you want to create a socket.io room upon accepting a request
-    /*
-    if(followRequest){
-        const roomId = `room_${followRequest.senderId}_${followRequest.receiverId}`;
-        const data= {
+
+    if (response) {
+        const roomId = `room_${response.senderId}_${response.receiverId}`;
+        const data = {
             roomId,
-            userIds:[followRequest.secret, followRequest.senderId]
+            userIds: [response.senderId, response.receiverId]
         }
+        console.log(`room :- ${roomId}`);
+
         try {
-            await axios.post('http://localhost:4000/api/create-room',data);
+            await axios.post('http://localhost:4000/api/create-room', data, {
+                headers: {
+                    'Content-Type': 'application/json'  // Ensure JSON header is set
+                }
+            });
         } catch (error) {
             return c.text(`Error creating socket IO room : ${error} `)
         }
     }
-    */
-    return response; // Return the response from accepting the follow request
+
+    return c.text('successful'); // Return the response from accepting the follow request
 })
 
 // Function to reject a follow request
 async function rejectFollowRequest(c: any, senderId: string, receiverId: string) {
     const prisma = getPrismaClient(c); // Initialize Prisma client with the current context
-    console.log('inside reject');
 
     try {
         // Check if the follow request has already been rejected
@@ -208,7 +217,6 @@ async function rejectFollowRequest(c: any, senderId: string, receiverId: string)
                 status: "REJECTED"
             }
         })
-        console.log('true', existingFollowRequests);
 
         if (existingFollowRequests?.status == "REJECTED") {
             return c.json({ msg: existingFollowRequests }) // Inform the user that the request has already been rejected
@@ -225,7 +233,6 @@ async function rejectFollowRequest(c: any, senderId: string, receiverId: string)
                 status: "REJECTED"
             }
         })
-        console.log('update many', updateFollowRequests);
 
         return c.json({ msg: updateFollowRequests }) // Confirm that the request has been rejected
     } catch (error) {
@@ -243,5 +250,29 @@ followRequestsRouter.patch('/:senderId/reject', async (c) => {
     const response = await rejectFollowRequest(c, senderId, receiverId);
     return response; // Return the response from rejecting the follow request
 })
+
+
+followRequestsRouter.get('/:senderId/sentFollowRequests', async (c) => {
+    const prisma = getPrismaClient(c);
+    const senderId = parseInt(c.req.param('senderId'));
+    const response = await prisma.followRequest.findMany({
+        where: {
+            senderId
+        }
+    })
+    return c.json(response);
+})
+
+followRequestsRouter.get("/receiver/getFollowRequests", async (c) => {
+    const prisma = getPrismaClient(c);
+    const receiverId = c.get('jwtPayload'); // Retrieve the authenticated receiver's ID from the context
+    const response = await prisma.followRequest.findMany({
+        where: {
+            receiverId
+        }
+    })
+    return c.json(response);
+})
+
 
 export default followRequestsRouter; // Export the configured router for use in the application

@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { Socket } from "socket.io-client";
+
 interface Message {
     text: string,
     name: string,
@@ -7,16 +10,30 @@ interface Message {
 }
 interface ChatBodyProps {
     messages: Message[],
-    username: string
+    username: string,
+    socket: Socket
 }
 
-const ChatBody = ({ messages, username }: ChatBodyProps) => {
+const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
     console.log('messages', messages);
+
+
+    function joinChatRoom(roomId: string) {
+        socket.emit('join_room', roomId);
+    }
+    
+    useEffect(() => {
+        joinChatRoom('room_10_13');
+    }, [])
+
+
+
+
 
     return (
         <div>
             {
-                messages.map(message => 
+                messages.map(message =>
                     message.name === username ?
                         (<div>
                             <p>You</p>

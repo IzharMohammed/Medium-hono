@@ -38,7 +38,7 @@ model FollowRequest {
   // Receiver side of the relationship
   receiver   User @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
   receiverId Int
-
+ 
   status    FollowStatus @default(PENDING)
   createdAt DateTime     @default(now())
 

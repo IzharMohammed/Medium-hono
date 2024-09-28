@@ -17,6 +17,7 @@ function UserDetails() {
     const { decoded } = useLocalStorage();
     const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
     const [loading, setLoading] = useState(false);
+    const[status, setStatus] = useState('');
     const getAllUsers = async () => {
         setLoading(true);
         const response = await axios.get(' https://backend.izharmohammed21.workers.dev/api/v1/user/allUsers');
@@ -27,6 +28,37 @@ function UserDetails() {
         getAllUsers();
     }, [])
     console.log('hi', registeredUsers);
+    const sentFriendRequest = async (receiverId: number) => {
+
+        const response = await axios.post(`http://127.0.0.1:8787/api/v1/followRequests/sentRequest`, {
+            senderId: decoded.id,
+            receiverId,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'token': localStorage.getItem('token'),
+            }
+        })
+        console.log('frd request response', response.data.followRequest.status);
+        setStatus(response.data.followRequest.status);
+    }
+
+
+    const renderFollowRequestButton = (receiverId: number) =>{
+        if(status == 'ACCEPTED'){
+            return <Button className="my-auto">Message</Button>
+        }else if(status == 'PENDING'){
+            return <Button className="my-auto">Pending</Button>
+        }else{
+            return <Button className="my-auto" onClick={() => sentFriendRequest(receiverId)}>Follow</Button>
+        }
+    }
+
+    // function handleFollowRequest(){
+    //     console.log('request accepted');
+    //     axios.post(`http://127.0.0.1:8787/api/v1/followRequests/10/accept`)
+
+    // }
 
     return (
         <>
@@ -99,7 +131,8 @@ function UserDetails() {
                                                         <div className="font-medium text-sm">{user.name}</div>
                                                         <div className="text-slate-500">{user.email}</div>
                                                     </div>
-                                                    <Button className="my-auto">Follow</Button>
+                                                    {renderFollowRequestButton(user.id)}
+                                                    {/* <Button className="my-auto" onClick={() => sentFriendRequest(user.id)}>Follow</Button> */}
                                                 </div>
                                             </div>
                                         ))
