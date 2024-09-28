@@ -13,22 +13,37 @@ interface Users {
     name: string
 }
 
+interface SendFollowRequests {
+    createdAt: string
+    id: number
+    receiverId: number
+    senderId: number
+    status: string
+}
+
 function UserDetails() {
+
     const { decoded } = useLocalStorage();
+
     const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
     const [loading, setLoading] = useState(false);
-    const[status, setStatus] = useState('');
+    const [sendFollowRequests, setSendFollowRequests] = useState<SendFollowRequests[]>([]);
+
     const getAllUsers = async () => {
         setLoading(true);
         const response = await axios.get(' https://backend.izharmohammed21.workers.dev/api/v1/user/allUsers');
         setRegisteredUsers(response.data);
         setLoading(false);
     }
-    useEffect(() => {
-        getAllUsers();
-    }, [])
-    console.log('hi', registeredUsers);
+
+    useEffect(() => { getAllUsers(), getFollowRequestsBySender() }, []);
+    //  useEffect(() => { getFollowRequestsBySender() }, [sendFollowRequests]);
+
+    console.log('all users', registeredUsers);
+    console.log('doubt 1', sendFollowRequests);
+
     const sentFriendRequest = async (receiverId: number) => {
+        console.log('inside sent frd request');
 
         const response = await axios.post(`http://127.0.0.1:8787/api/v1/followRequests/sentRequest`, {
             senderId: decoded.id,
@@ -39,20 +54,51 @@ function UserDetails() {
                 'token': localStorage.getItem('token'),
             }
         })
-        console.log('frd request response', response.data.followRequest.status);
-        setStatus(response.data.followRequest.status);
+
+        setSendFollowRequests(prevFollowRequests => [
+            ...prevFollowRequests,
+            {
+                createdAt: response.data.followRequest.createdAt,
+                id: response.data.followRequest.id,
+                receiverId: response.data.followRequest.receiverId,
+                senderId: response.data.followRequest.senderId,
+                status: response.data.followRequest.status
+            }
+        ])
+
+        console.log('frd request response', response.data.followRequest);
     }
 
+    const getFollowRequestsBySender = async () => {
+        const senderId = decoded.id;
+        const response = await axios.get(`http://127.0.0.1:8787/api/v1/followRequests/${senderId}/sentFollowRequests`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'token': localStorage.getItem('token'),
+            }
+        })
+        setSendFollowRequests(response.data);
+        console.log('all users id response', response.data);
+    }
 
-    const renderFollowRequestButton = (receiverId: number) =>{
-        if(status == 'ACCEPTED'){
-            return <Button className="my-auto">Message</Button>
-        }else if(status == 'PENDING'){
-            return <Button className="my-auto">Pending</Button>
-        }else{
-            return <Button className="my-auto" onClick={() => sentFriendRequest(receiverId)}>Follow</Button>
+    const renderFollowRequestButton = (usersId: number) => {
+        const foundRequest = sendFollowRequests.find(request => request.receiverId === usersId);
+        console.log('found request', foundRequest);
+
+        if (foundRequest) {
+            if (foundRequest.status === "PENDING") {
+                return <Button className="my-auto">Pending</Button>
+            } else if (foundRequest.status === "ACCEPTED") {
+                return <Button className="my-auto">Message</Button>
+            } else {
+                return <Button className="my-auto" onClick={() => sentFriendRequest(foundRequest.receiverId)}>Follow</Button>
+            }
         }
+        return <Button className="my-auto" onClick={() => sentFriendRequest(usersId)}>Follow</Button>
     }
+
+
+
 
     // function handleFollowRequest(){
     //     console.log('request accepted');
@@ -122,7 +168,7 @@ function UserDetails() {
                                         ) :
                                         registeredUsers &&
                                         registeredUsers.map(user => (
-                                            <div className="w-full h-[70px] ">
+                                            <div className="w-full h-[70px] " key={user.id}>
                                                 <div className="flex gap-0 justify-around mb-0 px-2">
                                                     <div>
                                                         <img src={Luffy} className="w-[45px] rounded-full h-[45px]" />

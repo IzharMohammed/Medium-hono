@@ -11,6 +11,15 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
 } from "../ui/dropdown-menu"
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "../../components/ui/sheet";
+
 import { useTheme } from "../theme-provider"
 import { useState } from "react";
 import useLocalStorage from "./useLocalStorage";
@@ -18,10 +27,10 @@ import useLocalStorage from "./useLocalStorage";
 
 
 function Navbar() {
-  const {decoded} =  useLocalStorage();
-  console.log('decoded',decoded);
-  
-   
+    const { decoded } = useLocalStorage();
+    console.log('decoded', decoded);
+
+
     const [position, setPosition] = useState("bottom")
     const navigate = useNavigate();
     const goToHomePage = () => {
@@ -73,6 +82,21 @@ function Navbar() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
+                        <div className="m-2">
+                            <Sheet>
+                                <SheetTrigger>Notifications</SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetTitle>Connection Requests</SheetTitle>
+                                        <SheetDescription>
+                                            This action cannot be undone. This will permanently delete your account
+                                            and remove your data from our servers.
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                </SheetContent>
+                            </Sheet>
+
+                        </div>
                         <div>
                             <button type="button" onClick={() => navigate('/FormPage', { state: decoded.id })} className="w-[6rem] h-[2rem] flex justify-center items-center text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm p-5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Publish</button>
                         </div>
@@ -87,7 +111,7 @@ function Navbar() {
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuSeparator />
                                     <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-                                        
+
                                         <DropdownMenuRadioItem value="profile" onClick={handleProfilePage}>Profile</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="top" onClick={handleSignIn}>sign in</DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value="bottom" onClick={handleSignUp}>sign up</DropdownMenuRadioItem>
