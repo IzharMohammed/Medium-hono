@@ -5,13 +5,14 @@ import useLocalStorage from "../components/Navbar/useLocalStorage";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from "react-loading-skeleton";
+import useRegisteredUsers from "../hooks/useRegisteredUsers";
 
-interface Users {
-    id: number,
-    email: string,
-    password: string,
-    name: string
-}
+// interface Users {
+//     id: number,
+//     email: string,
+//     password: string,
+//     name: string
+// }
 
 interface SendFollowRequests {
     createdAt: string
@@ -24,26 +25,26 @@ interface SendFollowRequests {
 function UserDetails() {
 
     const { decoded } = useLocalStorage();
-
-    const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
-    const [loading, setLoading] = useState(false);
+    const{loading, registeredUsers} = useRegisteredUsers();
+    // const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
+    // const [loading, setLoading] = useState(false);
     const [sendFollowRequests, setSendFollowRequests] = useState<SendFollowRequests[]>([]);
 
-    const getAllUsers = async () => {
-        setLoading(true);
-        const response = await axios.get(' https://backend.izharmohammed21.workers.dev/api/v1/user/allUsers');
-        setRegisteredUsers(response.data);
-        setLoading(false);
-    }
+    // const getAllUsers = async () => {
+    //     setLoading(true);
+    //     const response = await axios.get(' https://backend.izharmohammed21.workers.dev/api/v1/user/allUsers');
+    //     setRegisteredUsers(response.data);
+    //     setLoading(false);
+    // }
 
-    useEffect(() => { getAllUsers(), getFollowRequestsBySender() }, []);
+    useEffect(() => { getFollowRequestsBySender() }, []);
     //  useEffect(() => { getFollowRequestsBySender() }, [sendFollowRequests]);
 
-    console.log('all users', registeredUsers);
-    console.log('doubt 1', sendFollowRequests);
+    // console.log('all users', registeredUsers);
+    // console.log('doubt 1', sendFollowRequests);
 
     const sentFriendRequest = async (receiverId: number) => {
-        console.log('inside sent frd request');
+        // console.log('inside sent frd request');
 
         const response = await axios.post(`http://127.0.0.1:8787/api/v1/followRequests/sentRequest`, {
             senderId: decoded.id,
@@ -66,7 +67,7 @@ function UserDetails() {
             }
         ])
 
-        console.log('frd request response', response.data.followRequest);
+        // console.log('frd request response', response.data.followRequest);
     }
 
     const getFollowRequestsBySender = async () => {
@@ -78,12 +79,12 @@ function UserDetails() {
             }
         })
         setSendFollowRequests(response.data);
-        console.log('all users id response', response.data);
+        // console.log('all users id response', response.data);
     }
 
     const renderFollowRequestButton = (usersId: number) => {
         const foundRequest = sendFollowRequests.find(request => request.receiverId === usersId);
-        console.log('found request', foundRequest);
+        // console.log('found request', foundRequest);
 
         if (foundRequest) {
             if (foundRequest.status === "PENDING") {

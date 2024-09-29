@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Moon, Sun } from "lucide-react";
+import { Bell, Moon, Sun } from "lucide-react";
 
 import { Button } from "../../components/ui/button"
 import {
@@ -11,6 +11,7 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
 } from "../ui/dropdown-menu"
+
 import {
     Sheet,
     SheetContent,
@@ -21,17 +22,23 @@ import {
 } from "../../components/ui/sheet";
 
 import { useTheme } from "../theme-provider"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useLocalStorage from "./useLocalStorage";
+import axios from "axios";
+import RegisteredUsers from "../registeredUsers";
+import useRegisteredUsers from "../../hooks/useRegisteredUsers";
+
 
 
 
 function Navbar() {
     const { decoded } = useLocalStorage();
     console.log('decoded', decoded);
+    const { loading, registeredUsers } = useRegisteredUsers();
 
+    const [position, setPosition] = useState("bottom");
+    const[receivedFriendRequest, setReceivedFriendRequest] = useState([]);
 
-    const [position, setPosition] = useState("bottom")
     const navigate = useNavigate();
     const goToHomePage = () => {
         navigate('/allBlogs');
@@ -51,6 +58,22 @@ function Navbar() {
     const handleProfilePage = () => {
         navigate('/userDetails')
     }
+
+    const receiveFriendRequest = async () => {
+        const response = await axios.get(`http://127.0.0.1:8787/api/v1/followRequests/receiver/getFollowRequests`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'token': localStorage.getItem('token'),
+            }
+        });
+        console.log('receiveFriendRequest', response.data);
+        setReceivedFriendRequest(response.data);
+
+    }
+    console.log('use state',receivedFriendRequest);
+
+
+    useEffect(() => { receiveFriendRequest() }, [])
 
     return (
         <>
@@ -84,13 +107,14 @@ function Navbar() {
                         </div>
                         <div className="m-2">
                             <Sheet>
-                                <SheetTrigger>Notifications</SheetTrigger>
-                                <SheetContent>
+                                <SheetTrigger><Bell className="h-4 w-4" /></SheetTrigger>
+                                <SheetContent className="w-full">
                                     <SheetHeader>
                                         <SheetTitle>Connection Requests</SheetTitle>
-                                        <SheetDescription>
-                                            This action cannot be undone. This will permanently delete your account
-                                            and remove your data from our servers.
+                                        <SheetDescription >
+
+                                            <RegisteredUsers receivedFriendRequest={receivedFriendRequest} loading={loading} registeredUsers={registeredUsers} />
+
                                         </SheetDescription>
                                     </SheetHeader>
                                 </SheetContent>
