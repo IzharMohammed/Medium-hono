@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 
 interface ChatPageProps {
-    socket: Socket
+    socket: Socket | null;
 }
 
 //Method - 1
@@ -30,6 +30,7 @@ const ChatPage = ({ socket }: ChatPageProps) => {
 
     useEffect(() => {
         console.log(messages);
+        if(!socket) return;
         socket.on("messageResponse", (data) => setMessages([...messages, data]))
     }, [socket, messages])
 
@@ -42,6 +43,8 @@ const ChatPage = ({ socket }: ChatPageProps) => {
     console.log(username);
 
     useEffect(() => {
+        if(!socket) return;
+
         socket.on('join_room', (data) => {
             console.log(`${data} joined from client side`);
             socket.emit('join_room', data);

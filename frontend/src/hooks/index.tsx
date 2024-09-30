@@ -24,7 +24,7 @@ export default function useBlogs() {
                 "Content-Type": "text/json",
                 "token": token
             };
-            const response = await axios.post('https://backend.izharmohammed21.workers.dev/api/v1/blog/bulk', {}, {
+            const response = await axios.post('http://127.0.0.1:8787/api/v1/blog/bulk', {}, {
                 headers
             })
             console.log(response);

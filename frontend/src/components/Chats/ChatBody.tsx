@@ -11,7 +11,7 @@ interface Message {
 interface ChatBodyProps {
     messages: Message[],
     username: string,
-    socket: Socket
+    socket: Socket | null,
 }
 
 const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
@@ -19,17 +19,15 @@ const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
 
 
     function joinChatRoom(roomId: string) {
+        if(!socket) return;
         socket.emit('join_room', roomId);
     }
     
     useEffect(() => {
-        joinChatRoom('room_10_13');
+        joinChatRoom(`room_${}_${}`);
     }, [])
 
-
-
-
-
+    
     return (
         <div>
             {

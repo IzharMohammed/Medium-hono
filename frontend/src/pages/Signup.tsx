@@ -11,7 +11,7 @@ function Signup() {
 
     async function setSignUp() {
         try {
-            const response = await axios.post(`https://backend.izharmohammed21.workers.dev/api/v1/user/signup`, {
+            const response = await axios.post(`http://127.0.0.1:8787/api/v1/user/signup`, {
                 email: email,
                 password: password,
                 username: username

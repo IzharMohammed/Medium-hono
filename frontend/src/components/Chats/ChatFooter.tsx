@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useState } from "react";
 interface ChatFooterProps {
-    socket: Socket,
+    socket: Socket | null,
     username: string
 }
 
@@ -12,6 +12,7 @@ const ChatFooter = ({ socket, username }: ChatFooterProps) => {
     const handleSendMessage = (e: any) => {
         e.preventDefault();
         if (username) {
+            if(!socket) return;
             socket.emit("message", {
                 text: message,
                 name: username,

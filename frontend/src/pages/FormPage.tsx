@@ -19,7 +19,7 @@ function FormPage() {
         formData.append('title', title);
         formData.append('content', content);
 
-        const response = await axios.post(`https://backend.izharmohammed21.workers.dev/api/v1/blog/add`, formData, {
+        const response = await axios.post(`http://127.0.0.1:8787/api/v1/blog/add`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
                 "token": token

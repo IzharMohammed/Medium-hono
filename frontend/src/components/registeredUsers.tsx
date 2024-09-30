@@ -1,6 +1,11 @@
 import Skeleton from "react-loading-skeleton";
 import Luffy from "../../public/luffy.jpeg"
 import { Button } from './ui/button';
+import useLocalStorage from "./Navbar/useLocalStorage";
+import { useContext } from "react";
+import { SocketContext } from "../context/socketContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface ReceivedFriendRequest {
     createdAt: string
@@ -30,12 +35,31 @@ const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendR
         const foundSender = receivedFriendRequest.find(response => response.senderId === senderId)
         console.log('foundSender', foundSender);
         return foundSender;
+    }
+    const navigate = useNavigate()
+
+    const { socket } = useContext(SocketContext);
+
+    const { decoded } = useLocalStorage();
+
+    const handleAcceptFriendRequest = async (senderId: number) => {
+        try {
+            const response = await axios.patch(`http://127.0.0.1:8787/api/v1/followRequests/${senderId}/accept`);
+            console.log('frd req accepted', response);
+            navigate('/chatPage');
+        } catch (error) {
+            console.log('Error', error);
+        }
+        const roomId = `room_${senderId}_${decoded.id}`
+        socket?.emit('join_room', roomId);
+        console.log(`senderId: ${senderId} receiverId: ${decoded.id}`);
 
     }
 
+    const handleRejectFriendRequest = () => { }
+
     return (
         <div>
-
             {
                 loading ?
                     (
@@ -62,16 +86,16 @@ const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendR
                     registeredUsers.map(user => {
                         const foundSender = receivedFriendRequestFiltering(user.id)
                         return foundSender ? (
-                            <div className="w-full h-[70px] " key={user.id}>
-                                <div className="flex gap-0 justify-between mb-0 px-2">
+                            <div className="w-full h-[70px] mt-1 " key={user.id}>
+                                <div className="flex gap-0 justify-between px-2">
                                     <div>
                                         <img src={Luffy} className="w-[45px] rounded-full h-[45px]" />
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <div className="font-medium text-sm">{user.name}</div>
+                                        <div className="font-medium text-lg">{user.name}</div>
                                     </div>
-                                    <Button className="my-auto" >Accept</Button>
-                                    <Button className="my-auto" variant="outline" >Reject</Button>
+                                    <Button className="my-auto" onClick={() => handleAcceptFriendRequest(user.id)}>Accept</Button>
+                                    <Button className="my-auto" variant="outline" onClick={handleRejectFriendRequest} >Reject</Button>
                                 </div>
                             </div>
 

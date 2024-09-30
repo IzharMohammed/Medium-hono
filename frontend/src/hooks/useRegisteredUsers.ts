@@ -14,7 +14,7 @@ export default function useRegisteredUsers() {
     const [loading, setLoading] = useState(false);
     const getAllUsers = async () => {
         setLoading(true);
-        const response = await axios.get(' https://backend.izharmohammed21.workers.dev/api/v1/user/allUsers');
+        const response = await axios.get(' http://127.0.0.1:8787/api/v1/user/allUsers');
         setRegisteredUsers(response.data);
         setLoading(false);
     }
