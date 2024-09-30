@@ -18,14 +18,14 @@ const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
     console.log('messages', messages);
 
 
-    function joinChatRoom(roomId: string) {
-        if(!socket) return;
-        socket.emit('join_room', roomId);
-    }
+    // function joinChatRoom(roomId: string) {
+    //     if(!socket) return;
+    //     socket.emit('join_room', roomId);
+    // }
     
-    useEffect(() => {
-        joinChatRoom(`room_${}_${}`);
-    }, [])
+    // useEffect(() => {
+    //     joinChatRoom(`room_${}_${}`);
+    // }, [])
 
     
     return (
