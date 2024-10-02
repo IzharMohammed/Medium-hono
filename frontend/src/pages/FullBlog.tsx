@@ -9,6 +9,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 interface Blog {
     title: string,
     content: string,
+    imageUrl: string,
     createdAt: string
 }
 
@@ -43,9 +44,9 @@ function FullBlog() {
     return (
         <Layout>
             {
-                (loading || !blog) 
-                
-                ?
+                (loading || !blog)
+
+                    ?
                     <div className=" w-[60rem] flex flex-col m-auto h-screen p-8 ">
                         <div>
                             <Skeleton />
@@ -59,7 +60,7 @@ function FullBlog() {
 
                     <div className=" w-[60rem] flex flex-col m-auto h-screen p-8 ">
                         <div>
-                            <img src={luffy} className="w-[40rem] m-auto" />
+                            <img src={blog.imageUrl} className="w-[40rem] m-auto" />
                         </div>
                         <div className="text-center mt-8 font-bold  text-4xl">{blog.title}</div>
                         <div className="text-center mt-8 mb-6 font-semibold  text-1xl border-b-2 border-slate-300">created at :-{blog.createdAt?.split('T')[0]}</div>

@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-    engineType = "library"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -22,6 +22,7 @@ model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
+  imageUrl  String?
   published Boolean  @default(false)
   createdAt DateTime @default(now()) @db.Date
   author    User     @relation(fields: [authorId], references: [id])
@@ -38,13 +39,12 @@ model FollowRequest {
   // Receiver side of the relationship
   receiver   User @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
   receiverId Int
- 
+
   status    FollowStatus @default(PENDING)
   createdAt DateTime     @default(now())
 
   // Enforce uniqueness to prevent duplicate follow requests
   @@unique([senderId, receiverId, status])
-
   // Indexes to speed up queries based on senderId and receiverId
   @@index([senderId])
   @@index([receiverId])

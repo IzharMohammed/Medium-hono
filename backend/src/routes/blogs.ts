@@ -4,7 +4,7 @@ import { withAccelerate } from '@prisma/extension-accelerate';
 import { env } from 'hono/adapter';
 import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
 import { createBlogInput, updateBlogInput } from '../zod';
-const {convert} = require('html-to-text')
+const { convert } = require('html-to-text')
 import cloudinaryUpload from '../utils/cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
 import getPrismaClient from '../lib/getPrismaClient';
@@ -46,83 +46,65 @@ blogsRouter.use('/*', async (c, next) => {
     }
 });
 
-// blogsRouter.use(async (c, next) => {
-//     // Configuration
-//     cloudinary.config({
-//         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//         api_key: process.env.CLOUDINARY_API_KEY,
-//         api_secret: process.env.CLOUDINARY_API_SECRET // Click 'View API Keys' above to copy your API secret
-//     });
-//     await next();
-// })
+async function getImageUrl(c: any) {
+    // Retrieve environment variables using the Hono adapter
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } = env<{
+        CLOUDINARY_CLOUD_NAME: string;
+        CLOUDINARY_UPLOAD_PRESET: string;
+    }>(c);
 
-// function getPrismaClient(c: any) {
-//     // Get the database URL from environment variables
-//     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
-//     // Initialize Prisma Client with the Accelerate extension
-//     const prisma = new PrismaClient({
-//         datasourceUrl: DATABASE_URL,
-//     }).$extends(withAccelerate());
-//     console.log('inside');
-//     return prisma;
-// }
+    // Parse the request body to extract the image file
+    const body = await c.req.parseBody();
+    const image = body['image'] as File;
+    if (!image) {
+        throw new Error('Image file is missing.');
+    }
+    const byteArrayBuffer = await image.arrayBuffer();
+    const base64 = encodeBase64(byteArrayBuffer);
 
+    // Create a FormData object and append required fields
+    const formData = new FormData();
+    formData.append('file', `data:image/png;base64,${base64}`);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET); // Add the upload preset
+
+    // Send the POST request to Cloudinary using the FormData
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: formData // Use FormData instead of JSON.stringify
+    });
+    const data: any = await response.json();
+    console.log('image', data.url);
+    const imageUrl = data.url;
+    return imageUrl;
+}
 
 // Route to create a new blog post
 blogsRouter.post('/add', async (c) => {
+    const imageUrl = await getImageUrl(c);
 
     const prisma = getPrismaClient(c);
-
-    // Parse the request body as JSON
-    //const body = JSON.parse(await c.req.text());
-
-    // Get the author ID from the context (set by the middleware)
-    const authorId = c.get('jwtPayload');
-
-    //zod validation
-    //const { success } = createBlogInput.safeParse(body);
-
-    //const { title, content, published } = body;
-
+    // Parse the request body to extract the form data only once
     const formData = await c.req.formData();
-
+    // Extract other fields from the form data
     const title = formData.get('title') as string;
     const content = convert(formData.get('content') as string);
     const published = Boolean(formData.get('published'));
-    const file = formData.get('file')
-/*     c.req.parseBody().then(async (body) => {
-        const image = body['image'] as File;
-        const byteArrayBuffer = await image.arrayBuffer();
-        const base64 = encodeBase64(byteArrayBuffer);
-        const results = await cloudinary.uploader.upload(`data:image/png;base64,${base64}`);
-        console.log('results', results);
-        return c.json({ results });
-
-    }) */
-
-    //const fileUri = getDataUri(file);
-    //cloudinaryUpload(fileUri.content)
-
-
-    console.log([title, content, published, file]);
-
-
+    const authorId = c.get('jwtPayload');
     const userProvidedDate = new Date();
-    //  cloudinaryUpload(file)
 
-    if (true) {
-        // Create a new blog post in the database
-        const response = await prisma.post.create({
-            data: {
-                title,
-                content,
-                published,
-                authorId,
-                createdAt: userProvidedDate
-            },
-        });
-        console.log('response', response);
-    }
+    // Create a new blog post in the database
+    const blogResponse = await prisma.post.create({
+        data: {
+            title,
+            content,
+            imageUrl,
+            published,
+            authorId,
+            createdAt: userProvidedDate
+        },
+    });
+
+    console.log('Blog response', blogResponse);
 
     return c.text('Blog successfully created');
 });

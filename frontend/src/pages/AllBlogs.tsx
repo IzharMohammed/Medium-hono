@@ -10,6 +10,7 @@ interface Blog {
     content: string
     createdAt: string
     id: number
+    imageUrl: string
     published: boolean
     title: string
 }
@@ -81,13 +82,18 @@ function AllBlogs() {
                                             navigate('/FullBlog', { state: blog.id })
                                         }}>
                                             <div>
-                                                <img src={luffy} className="size-full" />
+                                                {
+                                                    blog.imageUrl ?
+                                                        <img src={blog.imageUrl} className="size-full" />
+                                                        :
+                                                        <img src={luffy} className="size-full" />
+                                                }
                                             </div>
                                             <div className="p-2 flex flex-col gap-5">
                                                 <div className="">Created At :- {blog.createdAt.split('T')[0]}</div>
                                                 <div className="text-3xl font-bold">
                                                     {blog.title}</div>
-                                                <div>{truncate(blog.content, 152)}</div>
+                                                <div dangerouslySetInnerHTML={{ __html: truncate(blog.content, 152) }}></div>
                                             </div>
                                         </div>
                                     ))
