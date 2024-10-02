@@ -2,10 +2,11 @@ import { Button } from "../components/ui/button";
 import Layout from "../layout/Layout";
 import Luffy from "../../public/luffy.jpeg"
 import useLocalStorage from "../components/Navbar/useLocalStorage";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from "react-loading-skeleton";
 import useRegisteredUsers from "../hooks/useRegisteredUsers";
+import { SocketContext } from "../context/socketContext";
 
 // interface Users {
 //     id: number,
@@ -25,7 +26,8 @@ interface SendFollowRequests {
 function UserDetails() {
 
     const { decoded } = useLocalStorage();
-    const{loading, registeredUsers} = useRegisteredUsers();
+    const senderId = decoded.id;
+    const { loading, registeredUsers } = useRegisteredUsers();
     // const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
     // const [loading, setLoading] = useState(false);
     const [sendFollowRequests, setSendFollowRequests] = useState<SendFollowRequests[]>([]);
@@ -43,11 +45,12 @@ function UserDetails() {
     // console.log('all users', registeredUsers);
     // console.log('doubt 1', sendFollowRequests);
 
+    const { socket } = useContext(SocketContext);
     const sentFriendRequest = async (receiverId: number) => {
         // console.log('inside sent frd request');
 
         const response = await axios.post(`http://127.0.0.1:8787/api/v1/followRequests/sentRequest`, {
-            senderId: decoded.id,
+            senderId,
             receiverId,
         }, {
             headers: {
@@ -66,6 +69,9 @@ function UserDetails() {
                 status: response.data.followRequest.status
             }
         ])
+        const roomId = `room_${senderId}_${receiverId}`
+        socket?.emit('join_room', roomId);
+        console.log(`senderId: ${senderId} receiverId: ${receiverId} roomId: ${roomId}`);
 
         // console.log('frd request response', response.data.followRequest);
     }

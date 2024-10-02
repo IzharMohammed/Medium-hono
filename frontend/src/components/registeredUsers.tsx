@@ -52,7 +52,7 @@ const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendR
         }
         const roomId = `room_${senderId}_${decoded.id}`
         socket?.emit('join_room', roomId);
-        console.log(`senderId: ${senderId} receiverId: ${decoded.id}`);
+        console.log(`senderId: ${senderId} receiverId: ${decoded.id} room: ${roomId}`);
 
     }
 

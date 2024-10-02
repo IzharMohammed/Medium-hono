@@ -42,18 +42,18 @@ const ChatPage = ({ socket }: ChatPageProps) => {
     const { username }: { username: string } = jwtDecode(token);
     console.log(username);
 
-    useEffect(() => {
-        if(!socket) return;
+    // useEffect(() => {
+    //     if(!socket) return;
 
-        socket.on('join_room', (data) => {
-            console.log(`${data} joined from client side`);
-            socket.emit('join_room', data);
-        })
+    //     socket.on('join_room', (data) => {
+    //         console.log(`${data} joined from client side`);
+    //         socket.emit('join_room', data);
+    //     })
 
-        return () => {
-            socket.off('join_room');
-        }
-    }, [socket])
+    //     return () => {
+    //         socket.off('join_room');
+    //     }
+    // }, [socket])
 
 
     return (

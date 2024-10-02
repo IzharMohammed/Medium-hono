@@ -1,16 +1,11 @@
 import { Hono } from 'hono';
-import { PrismaClient } from '@prisma/client/edge';
-import { withAccelerate } from '@prisma/extension-accelerate';
 import { env } from 'hono/adapter';
 import { decode, verify } from 'hono/jwt'; // Importing JWT functions for token handling
-import { createBlogInput, updateBlogInput } from '../zod';
+import { updateBlogInput } from '../zod';
 const { convert } = require('html-to-text')
-import cloudinaryUpload from '../utils/cloudinary';
 import { encodeBase64 } from 'hono/utils/encode';
 import getPrismaClient from '../lib/getPrismaClient';
-//import { v2 as cloudinary } from 'cloudinary';
-//import getDataUri from '../utils/dataUri';
-//import cloudinaryUpload from '../utils/cloudinary';
+
 const jwtPassword = 'secret'; // Secret key used for JWT signing and verification
 
 type responsePayload = {
@@ -72,6 +67,7 @@ async function getImageUrl(c: any) {
         method: 'POST',
         body: formData // Use FormData instead of JSON.stringify
     });
+
     const data: any = await response.json();
     console.log('image', data.url);
     const imageUrl = data.url;

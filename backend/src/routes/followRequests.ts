@@ -182,25 +182,23 @@ followRequestsRouter.patch('/:senderId/accept', async (c) => {
     console.log('response', response);
 
 
-    if (response) {
-        const roomId = `room_${response.senderId}_${response.receiverId}`;
-        const data = {
-            roomId,
-            userIds: [response.senderId, response.receiverId]
-        }
-        console.log(`room :- ${roomId}`);
+    // if (response) {
+    //     const roomId = `room_${response.senderId}_${response.receiverId}`;
+    //     const data = {
+    //         roomId,
+    //         userIds: [response.senderId, response.receiverId]
+    //     }
+    //     console.log(`room :- ${roomId}`);
 
-        try {
-            await axios.post('http://localhost:4000/api/create-room', data, {
-                headers: {
-                    'Content-Type': 'application/json'  // Ensure JSON header is set
-                }
-            });
-        } catch (error) {
-            return c.text(`Error creating socket IO room : ${error} `)
-        }
-    }
-
+    // try {
+    //     await axios.post('http://localhost:4000/api/create-room', data, {
+    //         headers: {
+    //             'Content-Type': 'application/json'  // Ensure JSON header is set
+    //         }
+    //     });
+    // } catch (error) {
+    //     return c.text(`Error creating socket IO room : ${error} `)
+    // }
     return c.text('successful'); // Return the response from accepting the follow request
 })
 
