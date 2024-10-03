@@ -3,20 +3,26 @@ import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import axios from "axios";
 import Navbar from "../components/Navbar/Navbar";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import toast from "react-hot-toast";
 
 function FormPage() {
-    const location = useLocation();
-    const id = location.state;
+    
     const navigate = useNavigate()
-    console.log(id);
+    
     const editor = useRef(null);
+    
+    const location = useLocation();
     const [content, setContent] = useState('');
     const [title, setTitle] = useState('');
-    const token = localStorage.getItem('token') as string;
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    const id = location.state;
+    console.log(id);
+
+    const token = localStorage.getItem('token') as string;
+    
     const publishBlog = async () => {
         setLoading(true);
         const formData = new FormData();
@@ -35,15 +41,16 @@ function FormPage() {
                 "token": token
             }
         })
+
         if (response.data == "Blog successfully created") {
-            alert('Form successfully created');
             setTitle('');
             setContent('');
             setLoading(false);
+            toast.success('Blog published successfully')
             navigate('/allBlogs');
         }
-        console.log(response);
 
+        console.log(response);
     }
 
 

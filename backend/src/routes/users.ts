@@ -28,7 +28,7 @@ userRouter.post('signup', async (c) => {
 
     // Define validation schemas for email and password using Zod
     const emailSchema = zod.string().email();
-    const passwordSchema = zod.string().min(4);
+    const passwordSchema = zod.string().min(6);
 
     // Check if email and password are provided
     if (!email || !password) {
@@ -51,7 +51,13 @@ userRouter.post('signup', async (c) => {
     // Return an error if the password is less than 4 characters
     if (!passwordResponse.success) {
         return c.json({
-            msg: 'Password must be minimum 4 characters'
+            msg: 'Password must be minimum 6 characters'
+        });
+    }
+
+    if (!username) {
+        return c.json({
+            msg: 'Enter username'
         });
     }
 
@@ -79,9 +85,6 @@ userRouter.post('signin', async (c) => {
         datasourceUrl: DATABASE_URL,
     }).$extends(withAccelerate());
 
-    // Get the email and password from the request headers
-    // const email = c.req.header('email');
-    // const password = c.req.header('password');
 
     const body = JSON.parse(await c.req.text());
     const {email , password, username} = body;
@@ -100,8 +103,10 @@ userRouter.post('signin', async (c) => {
         }
     });
 
-    console.log(response); // Log the response from the database
-
+    console.log('signin',response); // Log the response from the database
+    if(!response){
+        return c.json({err: "Invalid credentials"})
+    }
     // Get the user ID from the response (if found)
     const id = response?.id;
     // Create a JWT token with the user's email and ID

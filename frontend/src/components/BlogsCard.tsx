@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import luffy from '../../public/luffy.jpeg';
-//import { jwtDecode } from "jwt-decode";
 import useBlogs from "../hooks";
 import Skeleton from "react-loading-skeleton";
 
 
-function BlogsCard({search}:{search : string}) {
+function BlogsCard({ search }: { search: string }) {
     // const text = "Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money. Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money";
     const navigate = useNavigate();
     const truncate = (str: any, count: number) => {
@@ -14,15 +12,7 @@ function BlogsCard({search}:{search : string}) {
     }
 
     const { loading, blogs } = useBlogs();
-    console.log('loading', loading);
-
-    // // Testing for search functionality
-    // const blogilter = () => {
-    //     const filtered = blogs.filter(blog => blog.title.includes(search))
-    //     console.log('Filtered', filtered);
-    // }
-
-    // blogilter();
+    console.log('blogs', blogs);
 
 
     return (
@@ -54,7 +44,7 @@ function BlogsCard({search}:{search : string}) {
                             navigate('/FullBlog', { state: blog.id })
                         }}>
                             <div>
-                                <img src={luffy} className="size-full" />
+                                <img src={blog.imageUrl} className="size-full" />
                             </div>
                             <div className="p-2 flex flex-col gap-5">
                                 <div className="">Created At :- {blog.createdAt.split('T')[0]}</div>

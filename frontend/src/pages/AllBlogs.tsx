@@ -78,7 +78,7 @@ function AllBlogs() {
                                         ))
                                     ) :
                                     blogs.filter(blog => blog.title.includes(search)).map(blog => (
-                                        <div className="transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 hover:bg-slate-200 duration-500  border border-slate-300 w-[25rem]  flex flex-col gap-4 cursor-pointer" onClick={() => {
+                                        <div className="transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110  duration-500  border border-slate-300 w-[25rem]  flex flex-col gap-4 cursor-pointer m-4" onClick={() => {
                                             navigate('/FullBlog', { state: blog.id })
                                         }}>
                                             <div>

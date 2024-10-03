@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 function Signup() {
@@ -16,13 +17,30 @@ function Signup() {
                 password: password,
                 username: username
             })
-            // if (response.data == 'Invalid email' || 'Email and password are necessary' || 'Password must be minimum 4 characters') {
-            //     alert(response.data.msg);
-            // } else {
-                // const jwt = response.data;
-                //localStorage.setItem('token', jwt);
+
+            const data = response.data.msg
+            if (data === 'Invalid email') {
+                toast.error('Invalid email')
+            }
+
+            if (data === 'Password must be minimum 6 characters') {
+                toast.error('Password must be minimum 6 characters')
+            }
+
+            if (data === 'Email and password are necessary') {
+                toast.error('Email and password are necessary');
+            }
+
+            if (data === 'Enter username') {
+                toast.error('Enter username');
+            }
+
+
+            if (response.data.includes('logged in successfully')) {
                 navigate('/')
-            // }
+                toast.success('Account created successfully')
+            }
+
         } catch (error) {
             alert(error);
         }

@@ -6,6 +6,7 @@ interface Blog {
     content: string
     createdAt: string
     id: number
+    imageUrl: string
     published: boolean
     title: string
 }
