@@ -87,7 +87,7 @@ blogsRouter.post('/add', async (c) => {
     const published = Boolean(formData.get('published'));
     const authorId = c.get('jwtPayload');
     const userProvidedDate = new Date();
-
+    
     // Create a new blog post in the database
     const blogResponse = await prisma.post.create({
         data: {

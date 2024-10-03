@@ -33,14 +33,14 @@ const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
             {
                 messages.map(message =>
                     message.name === username ?
-                        (<div>
-                            <p>You</p>
-                            <div>{message.text}</div>
+                        (<div className="mb-3">
+                            <p className="font-semibold">You</p>
+                            <div className="ml-2">{message.text}</div>
                         </div>)
                         :
-                        (<div>
-                            <p>{message.name}</p>
-                            <div>{message.text}</div>
+                        (<div className="mb-3">
+                            <p className="font-semibold">{message.name}</p>
+                            <div className="ml-2">{message.text}</div>
                         </div>)
                 )
 

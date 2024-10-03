@@ -1,21 +1,24 @@
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import axios from "axios";
 import Navbar from "../components/Navbar/Navbar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function FormPage() {
     const location = useLocation();
     const id = location.state;
-
+    const navigate = useNavigate()
     console.log(id);
     const editor = useRef(null);
     const [content, setContent] = useState('');
     const [title, setTitle] = useState('');
     const token = localStorage.getItem('token') as string;
     const [file, setFile] = useState(null);
-
+    const [loading, setLoading] = useState(false);
     const publishBlog = async () => {
+        setLoading(true);
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
@@ -36,6 +39,8 @@ function FormPage() {
             alert('Form successfully created');
             setTitle('');
             setContent('');
+            setLoading(false);
+            navigate('/allBlogs');
         }
         console.log(response);
 
@@ -55,9 +60,9 @@ function FormPage() {
                         <h3 className="font-semibold">Title</h3>
                         <input value={title} onChange={(e) => setTitle(e.target.value)} className="border border-slate-300 outline-none w-full rounded-sm h-[2rem] mb-4 text-black" type="text" />
                         <h3 className="font-semibold">Content</h3>
-                        <div >
+                        <div className="overflow-y-scroll ">
                             <JoditEditor
-                                className="overflow-auto text-black"
+                                className="overflow-auto  text-black"
                                 ref={editor}
                                 value={content}
                                 onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
@@ -71,7 +76,16 @@ function FormPage() {
                             }} />
                         </div>
                         <div className="flex justify-end">
-                            <button onClick={publishBlog} className="bg-black text-white p-2 rounded-lg w-1/3 h-10 ">Publish</button>
+                            {
+                                loading ?
+                                    <button className="bg-slate-400  text-white p-2 rounded-lg w-1/3 h-10 " disabled>Publishing...</button>
+                                    :
+                                    <>
+                                    <button onClick={publishBlog} className="bg-black text-white p-2 rounded-lg w-1/3 h-10 ">Publish</button>
+                                    
+                                    </>
+                            }
+
                         </div>
                     </div>
                 </div>

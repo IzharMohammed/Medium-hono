@@ -23,7 +23,7 @@ const ChatFooter = ({ socket, username }: ChatFooterProps) => {
         setMessage('');
     }
     return (
-        <div className="flex w-full max-w-sm items-center space-x-2">
+        <div className="flex  max-w-sm items-center space-x-2 m-auto">
             <Input
                 type="text"
                 placeholder="message"

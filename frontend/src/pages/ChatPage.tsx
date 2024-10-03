@@ -4,6 +4,7 @@ import ChatBody from "../components/Chats/ChatBody";
 import ChatBar from "../components/Chats/ChatBar";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+import Layout from "../layout/Layout";
 
 interface ChatPageProps {
     socket: Socket | null;
@@ -57,17 +58,21 @@ const ChatPage = ({ socket }: ChatPageProps) => {
 
 
     return (
-        <div className="flex border border-white h-screen">
+        <Layout>
+        <div className="flex border border-white h-screen w-full">
             <div className="w-[14rem]">
                 <ChatBar />
             </div>
-            <div className=" border border-green-600 w-full flex flex-col ">
-                <div className="h-5/6">
+            <div className=" border border-slate-300  w-full flex flex-col rounded-md">
+                <div className="h-5/6 p-8">
                     <ChatBody messages={messages} username={username} socket={socket}/>
                 </div>
+                <div>
                 <ChatFooter socket={socket} username={username} />
+                </div>
             </div>
         </div>
+        </Layout>
     )
 }
 

@@ -16,13 +16,13 @@ function Signup() {
                 password: password,
                 username: username
             })
-            if (response.data == 'Invalid email' || 'Email and password are necessary' || 'Password must be minimum 4 characters') {
-                alert(response.data.msg);
-            } else {
+            // if (response.data == 'Invalid email' || 'Email and password are necessary' || 'Password must be minimum 4 characters') {
+            //     alert(response.data.msg);
+            // } else {
                 // const jwt = response.data;
                 //localStorage.setItem('token', jwt);
                 navigate('/')
-            }
+            // }
         } catch (error) {
             alert(error);
         }
