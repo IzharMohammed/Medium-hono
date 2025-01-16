@@ -1,5 +1,0 @@
-name = "backend"
-compatibility_date = "2024-08-09"
-node_compat = true
-
- [vars]

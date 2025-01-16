@@ -1,5 +1,4 @@
 import Layout from "../layout/Layout";
-import luffy from '../../public/luffy.jpeg';
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";

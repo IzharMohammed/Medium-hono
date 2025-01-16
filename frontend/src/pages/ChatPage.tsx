@@ -1,4 +1,4 @@
-import { io, Socket } from "socket.io-client";
+import {  Socket } from "socket.io-client";
 import ChatFooter from "../components/Chats/ChatFooter";
 import ChatBody from "../components/Chats/ChatBody";
 import ChatBar from "../components/Chats/ChatBar";

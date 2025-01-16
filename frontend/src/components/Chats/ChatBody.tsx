@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Socket } from "socket.io-client";
 
 interface Message {
@@ -14,7 +13,7 @@ interface ChatBodyProps {
     socket: Socket | null,
 }
 
-const ChatBody = ({ messages, username, socket }: ChatBodyProps) => {
+const ChatBody = ({ messages, username }: ChatBodyProps) => {
     console.log('messages', messages);
 
 

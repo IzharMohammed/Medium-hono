@@ -78,22 +78,22 @@ function AllBlogs() {
                                         ))
                                     ) :
                                     blogs.filter(blog => blog.title.includes(search)).map(blog => (
-                                        <div className="transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110  duration-500  border border-slate-300 w-[25rem]  flex flex-col gap-4 cursor-pointer m-4" onClick={() => {
+                                        <div className="transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-105  duration-500  border border-slate-300 w-[25rem]  flex flex-col gap-2 cursor-pointer m-4 rounded-lg" onClick={() => {
                                             navigate('/FullBlog', { state: blog.id })
                                         }}>
                                             <div>
                                                 {
                                                     blog.imageUrl ?
-                                                        <img src={blog.imageUrl} className="size-full" />
+                                                        <img src={blog.imageUrl} className="size-full rounded-t-lg" />
                                                         :
-                                                        <img src={luffy} className="size-full" />
+                                                        <img src={luffy} className="size-full rounded-t-lg" />
                                                 }
                                             </div>
-                                            <div className="p-2 flex flex-col gap-5">
+                                            <div className="px-4 py-2 flex flex-col gap-5 ">
                                                 <div className="">Created At :- {blog.createdAt.split('T')[0]}</div>
-                                                <div className="text-3xl font-bold">
+                                                <div className="text-3xl font-bold line-clamp-2 ">
                                                     {blog.title}</div>
-                                                <div dangerouslySetInnerHTML={{ __html: truncate(blog.content, 152) }}></div>
+                                                <div className='pb-4' dangerouslySetInnerHTML={{ __html: truncate(blog.content, 152) }}></div>
                                             </div>
                                         </div>
                                     ))
