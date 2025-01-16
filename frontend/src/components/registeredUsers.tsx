@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { SocketContext } from "../context/socketContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 interface ReceivedFriendRequest {
     createdAt: string
@@ -30,10 +31,10 @@ interface ReceivedFriendRequestProps {
 
 const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendRequest, loading, registeredUsers }) => {
 
-    console.log('receivedFriendRequest', receivedFriendRequest);
+    // console.log('receivedFriendRequest', receivedFriendRequest);
     const receivedFriendRequestFiltering = (senderId: number) => {
         const foundSender = receivedFriendRequest.find(response => response.senderId === senderId)
-        console.log('foundSender', foundSender);
+        // console.log('foundSender', foundSender);
         return foundSender;
     }
     const navigate = useNavigate()
@@ -42,17 +43,19 @@ const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendR
 
     const { decoded } = useLocalStorage();
 
+        const BACKEND_URL = getBackendUrl();
+
     const handleAcceptFriendRequest = async (senderId: number) => {
         try {
-            const response = await axios.patch(`http://127.0.0.1:8787/api/v1/followRequests/${senderId}/accept`);
-            console.log('frd req accepted', response);
+            const response = await axios.patch(`${BACKEND_URL}/api/v1/followRequests/${senderId}/accept`);
+            // console.log('frd req accepted', response);
             navigate('/chatPage');
         } catch (error) {
-            console.log('Error', error);
+            // console.log('Error', error);
         }
         const roomId = `room_${senderId}_${decoded.id}`
         socket?.emit('join_room', roomId);
-        console.log(`senderId: ${senderId} receiverId: ${decoded.id} room: ${roomId}`);
+        // console.log(`senderId: ${senderId} receiverId: ${decoded.id} room: ${roomId}`);
 
     }
 

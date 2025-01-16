@@ -28,10 +28,10 @@ followRequestsRouter.use('/*', async (c, next) => {
     const response = await verify(token, jwtPassword) as responsePayload;
     const id = response.id; // Extract the user ID from the verified token
 
-    console.log('decoded', response);
+    // console.log('decoded', response);
     // Store the user ID in the context for later use
     c.set('jwtPayload', id);
-    console.log('verify');
+    // console.log('verify');
     await next(); // Proceed to the next middleware or route handler
     // } catch (error) {
     //     return c.json({
@@ -54,7 +54,7 @@ followRequestsRouter.post('/sentRequest', async (c) => {
     const body = await c.req.json<FollowRequestBody>();
     const { senderId, receiverId } = body;
 
-    console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
+    // console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
 
     try {
         // Check if a pending follow request already exists between the sender and receiver
@@ -84,7 +84,7 @@ followRequestsRouter.post('/sentRequest', async (c) => {
         return c.json({ message: 'Follow request sent', followRequest: newFollowRequest }); // Confirm that the request was sent
 
     } catch (error) {
-        console.log(`Error creating follow request: ${error}`);
+        // console.log(`Error creating follow request: ${error}`);
         return c.json({ message: "Error creating follow request" }); // Respond with an error if something goes wrong
     }
 })
@@ -101,7 +101,7 @@ followRequestsRouter.get('/sent', async (c) => {
                 senderId
             }
         })
-        console.log(`sender Requests :- ${senderRequests}`);
+        // console.log(`sender Requests :- ${senderRequests}`);
         return c.json({ 'sender Requests': senderRequests }); // Return the list of sent follow requests
 
     } catch (error) {
@@ -173,13 +173,13 @@ async function acceptFollowRequest(c: any, senderId: any, receiverId: string) {
 // Route for the receiver to accept a follow request
 followRequestsRouter.patch('/:senderId/accept', async (c) => {
     const senderId = c.req.param('senderId'); // Extract the sender's ID from the URL parameters
-    console.log(c.get('jwtPayload'));
+    // console.log(c.get('jwtPayload'));
 
     const receiverId = c.get('jwtPayload'); // Retrieve the authenticated receiver's ID from the context
 
     // Call the function to accept the follow request
     const response = await acceptFollowRequest(c, senderId, receiverId);
-    console.log('response', response);
+    // console.log('response', response);
 
 
     // if (response) {
@@ -242,7 +242,7 @@ async function rejectFollowRequest(c: any, senderId: string, receiverId: string)
 followRequestsRouter.patch('/:senderId/reject', async (c) => {
     const senderId = c.req.param('senderId'); // Extract the sender's ID from the URL parameters
     const receiverId = c.get('jwtPayload'); // Retrieve the authenticated receiver's ID from the context
-    console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
+    // console.log(`senderId: ${senderId}, receiverId: ${receiverId}`);
 
     // Call the function to reject the follow request
     const response = await rejectFollowRequest(c, senderId, receiverId);

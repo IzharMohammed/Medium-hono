@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 function Signin() {
 
@@ -10,11 +11,11 @@ function Signin() {
   const [username, setUsername] = useState('');
 
   const navigate = useNavigate();
-
+  const BACKEND_URL = getBackendUrl();
   async function setSignIn() {
     //console.log('url',process.env.API_URL);
 
-    const response = await axios.post(`http://127.0.0.1:8787/api/v1/user/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, {
       'email': email,
       'password': password,
       'username': username,
@@ -37,6 +38,7 @@ function Signin() {
       navigate('/allBlogs');
     }
 
+    console.log('backendurl', process.env.BACKEND_URL);
 
   }
   return (

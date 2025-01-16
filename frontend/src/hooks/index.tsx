@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 interface Blog {
     authorId: number,
@@ -17,6 +18,7 @@ export default function useBlogs() {
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem('token') as string;
     //const decoded = jwtDecode<decodedToken>(token);
+    const BACKEND_URL = getBackendUrl();
 
     useEffect(() => {
         setLoading(true);
@@ -25,7 +27,7 @@ export default function useBlogs() {
                 "Content-Type": "text/json",
                 "token": token
             };
-            const response = await axios.post('http://127.0.0.1:8787/api/v1/blog/bulk', {}, {
+            const response = await axios.post(`${BACKEND_URL}/api/v1/blog/bulk`, {}, {
                 headers
             })
             console.log(response);

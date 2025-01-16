@@ -30,7 +30,7 @@ blogsRouter.use('/*', async (c, next) => {
         const response = await verify(token, jwtPassword) as responsePayload;
         const id = response.id; // Extract the user ID from the verified token
 
-        console.log(response);
+        // console.log(response);
         // Store the user ID in the context for later use
         c.set('jwtPayload', id);
         await next(); // Continue to the next middleware or route handler
@@ -69,7 +69,7 @@ async function getImageUrl(c: any) {
     });
 
     const data: any = await response.json();
-    console.log('image', data.url);
+    // console.log('image', data.url);
     const imageUrl = data.url;
     return imageUrl;
 }
@@ -100,7 +100,7 @@ blogsRouter.post('/add', async (c) => {
         },
     });
 
-    console.log('Blog response', blogResponse);
+    // console.log('Blog response', blogResponse);
 
     return c.text('Blog successfully created');
 });
@@ -119,7 +119,7 @@ blogsRouter.put('/', async (c) => {
     const { success } = updateBlogInput.safeParse(body);
 
     const { id, title, content } = body;
-    console.log([title, content, id, authorId]);
+    // console.log([title, content, id, authorId]);
 
     if (success) {
         // Update the blog post with the given ID and author ID
@@ -168,10 +168,10 @@ blogsRouter.post('/bulk', async (c) => {
     }
 
     const response = decode(token); // Decode the token without verifying it
-    console.log('decoded token', response);
+    // console.log('decoded token', response);
 
     const email = response.payload.email; // Extract the email from the decoded token
-    console.log('email', email);
+    // console.log('email', email);
 
     const prisma = getPrismaClient(c);
 
@@ -181,7 +181,7 @@ blogsRouter.post('/bulk', async (c) => {
         },
     });
 
-    console.log('blogs', blogs);
+    // console.log('blogs', blogs);
 
     // return c.text({'Fetched all the blogs',blogs});
     return c.json(blogs)

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css';
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 interface Blog {
     title: string,
@@ -22,10 +23,10 @@ function FullBlog() {
     const token = localStorage.getItem('token') as string;
     const [blog, setBlog] = useState<Blog>();
     const [loading, setloading] = useState(false);
-
+    const BACKEND_URL = getBackendUrl();
     const fetchBlogById = async () => {
         setloading(true);
-        const response = await axios.get(`http://127.0.0.1:8787/api/v1/blog/${id}`, {
+        const response = await axios.get(`${BACKEND_URL}/api/v1/blog/${id}`, {
             headers: {
                 "Content-Type": "text/json",
                 "token": token

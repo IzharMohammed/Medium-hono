@@ -11,7 +11,7 @@ const app = new Hono();
 app.use('*', cors());
 
 
-app.get('/', (c) => c.text('Hello World!'));
+app.get('/', (c) => { return c.text('Healthy api') })
 
 app.get('/api/v1/allBlogs', async (c) => {
     const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);

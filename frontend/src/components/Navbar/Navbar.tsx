@@ -27,18 +27,19 @@ import useLocalStorage from "./useLocalStorage";
 import axios from "axios";
 import RegisteredUsers from "../registeredUsers";
 import useRegisteredUsers from "../../hooks/useRegisteredUsers";
+import { getBackendUrl } from "../../lib/getBackendUrl";
 
 
 
 
 function Navbar() {
     const { decoded } = useLocalStorage();
-    console.log('decoded', decoded);
+    // console.log('decoded', decoded);
     const { loading, registeredUsers } = useRegisteredUsers();
 
     const [position, setPosition] = useState("bottom");
-    const[receivedFriendRequest, setReceivedFriendRequest] = useState([]);
-
+    const [receivedFriendRequest, setReceivedFriendRequest] = useState([]);
+    const BACKEND_URL = getBackendUrl();
     const navigate = useNavigate();
     const goToHomePage = () => {
         navigate('/allBlogs');
@@ -60,17 +61,17 @@ function Navbar() {
     }
 
     const receiveFriendRequest = async () => {
-        const response = await axios.get(`http://127.0.0.1:8787/api/v1/followRequests/receiver/getFollowRequests`, {
+        const response = await axios.get(`${BACKEND_URL}/api/v1/followRequests/receiver/getFollowRequests`, {
             headers: {
                 'Content-Type': 'application/json',
                 'token': localStorage.getItem('token'),
             }
         });
-        console.log('receiveFriendRequest', response.data);
+        // console.log('receiveFriendRequest', response.data);
         setReceivedFriendRequest(response.data);
 
     }
-    console.log('use state',receivedFriendRequest);
+    // console.log('use state',receivedFriendRequest);
 
 
     useEffect(() => { receiveFriendRequest() }, [])

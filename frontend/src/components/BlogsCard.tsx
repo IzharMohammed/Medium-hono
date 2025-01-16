@@ -12,7 +12,7 @@ function BlogsCard({ search }: { search: string }) {
     }
 
     const { loading, blogs } = useBlogs();
-    console.log('blogs', blogs);
+    // console.log('blogs', blogs);
 
 
     return (

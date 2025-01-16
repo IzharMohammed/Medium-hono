@@ -5,6 +5,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar/Navbar";
 import "react-toastify/dist/ReactToastify.css";
 import toast from "react-hot-toast";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 function FormPage() {
     
@@ -17,9 +18,9 @@ function FormPage() {
     const [title, setTitle] = useState('');
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
-    
+    const BACKEND_URL = getBackendUrl();
     const id = location.state;
-    console.log(id);
+    // console.log(id);
 
     const token = localStorage.getItem('token') as string;
     
@@ -35,7 +36,7 @@ function FormPage() {
 
         formData.append('image', file);
 
-        const response = await axios.post(`http://127.0.0.1:8787/api/v1/blog/add`, formData, {
+        const response = await axios.post(`${BACKEND_URL}/api/v1/blog/add`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
                 "token": token
@@ -50,7 +51,7 @@ function FormPage() {
             navigate('/allBlogs');
         }
 
-        console.log(response);
+        // console.log(response);
     }
 
 

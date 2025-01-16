@@ -7,6 +7,7 @@ import axios from "axios";
 import Skeleton from "react-loading-skeleton";
 import useRegisteredUsers from "../hooks/useRegisteredUsers";
 import { SocketContext } from "../context/socketContext";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 // interface Users {
 //     id: number,
@@ -26,6 +27,7 @@ interface SendFollowRequests {
 function UserDetails() {
 
     const { decoded } = useLocalStorage();
+    const BACKEND_URL = getBackendUrl();
     const senderId = decoded.id;
     const { loading, registeredUsers } = useRegisteredUsers();
     // const [registeredUsers, setRegisteredUsers] = useState<Users[]>([]);
@@ -49,7 +51,7 @@ function UserDetails() {
     const sentFriendRequest = async (receiverId: number) => {
         // console.log('inside sent frd request');
 
-        const response = await axios.post(`http://127.0.0.1:8787/api/v1/followRequests/sentRequest`, {
+        const response = await axios.post(`${BACKEND_URL}/api/v1/followRequests/sentRequest`, {
             senderId,
             receiverId,
         }, {
@@ -78,7 +80,7 @@ function UserDetails() {
 
     const getFollowRequestsBySender = async () => {
         const senderId = decoded.id;
-        const response = await axios.get(`http://127.0.0.1:8787/api/v1/followRequests/${senderId}/sentFollowRequests`, {
+        const response = await axios.get(`${BACKEND_URL}/api/v1/followRequests/${senderId}/sentFollowRequests`, {
             headers: {
                 'Content-Type': 'application/json',
                 'token': localStorage.getItem('token'),
@@ -103,15 +105,6 @@ function UserDetails() {
         }
         return <Button className="my-auto" onClick={() => sentFriendRequest(usersId)}>Follow</Button>
     }
-
-
-
-
-    // function handleFollowRequest(){
-    //     console.log('request accepted');
-    //     axios.post(`http://127.0.0.1:8787/api/v1/followRequests/10/accept`)
-
-    // }
 
     return (
         <>

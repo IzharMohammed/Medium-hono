@@ -2,17 +2,18 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getBackendUrl } from "../lib/getBackendUrl";
 
 function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
-
+    const BACKEND_URL = getBackendUrl();
     const navigate = useNavigate();
 
     async function setSignUp() {
         try {
-            const response = await axios.post(`http://127.0.0.1:8787/api/v1/user/signup`, {
+            const response = await axios.post(`${BACKEND_URL}/api/v1/user/signup`, {
                 email: email,
                 password: password,
                 username: username

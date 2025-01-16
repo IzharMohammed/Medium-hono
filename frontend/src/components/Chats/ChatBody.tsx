@@ -14,7 +14,7 @@ interface ChatBodyProps {
 }
 
 const ChatBody = ({ messages, username }: ChatBodyProps) => {
-    console.log('messages', messages);
+    // console.log('messages', messages);
 
 
     // function joinChatRoom(roomId: string) {

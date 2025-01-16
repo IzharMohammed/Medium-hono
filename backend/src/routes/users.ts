@@ -69,7 +69,7 @@ userRouter.post('signup', async (c) => {
             name: username
         }
     });
-    console.log(response); // Log the response from the database
+    // console.log(response); // Log the response from the database
 
     // Return a success message indicating that the user has successfully signed up
     return c.text(`${email} logged in successfully !!! `);
@@ -103,7 +103,7 @@ userRouter.post('signin', async (c) => {
         }
     });
 
-    console.log('signin',response); // Log the response from the database
+    // console.log('signin',response); // Log the response from the database
     if(!response){
         return c.json({err: "Invalid credentials"})
     }
@@ -112,7 +112,7 @@ userRouter.post('signin', async (c) => {
     // Create a JWT token with the user's email and ID
     const token = await sign({ email, id, username }, jwtPassword);
 
-    console.log(response); // Log the response again for verification
+    // console.log(response); // Log the response again for verification
 
     // Return the generated JWT token
     return c.text(token);

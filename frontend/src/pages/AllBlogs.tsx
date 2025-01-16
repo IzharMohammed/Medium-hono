@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import luffy from '../../public/luffy.jpeg';
 import Layout from '../layout/Layout';
 import Skeleton from "react-loading-skeleton";
+import { getBackendUrl } from '../lib/getBackendUrl';
 
 interface Blog {
     authorId: number,
@@ -15,7 +16,9 @@ interface Blog {
     title: string
 }
 
-function AllBlogs() {
+
+ function AllBlogs() {
+     const BACKEND_URL = getBackendUrl();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const navigate = useNavigate();
     const [loading, setloading] = useState(true);
@@ -23,8 +26,8 @@ function AllBlogs() {
 
     const fetchBlogById = async () => {
         setloading(true);
-        const response = await axios.get(`http://127.0.0.1:8787/api/v1/allBlogs`);
-        console.log(response);
+        const response = await axios.get(`${BACKEND_URL}/api/v1/allBlogs`);
+        // console.log(response);
         setBlogs(response.data);
         setloading(false);
     }
@@ -32,7 +35,8 @@ function AllBlogs() {
     useEffect(() => {
         fetchBlogById();
     }, []);
-    console.log('all blogs', blogs);
+    // console.log('all blogs', blogs);
+    console.log('backend url', BACKEND_URL);
 
     const truncate = (str: any, count: number) => {
         const response = str.split("").splice(0, count).join("");
