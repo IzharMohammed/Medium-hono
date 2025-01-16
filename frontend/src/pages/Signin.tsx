@@ -43,7 +43,7 @@ function Signin() {
     <div className=" h-screen  flex justify-center items-center">
       <div className="border border-slate-600 w-[35rem] h-[30rem] m-auto flex flex-col justify-center items-center gap-9 rounded-md">
         <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-semibold ">Login</h1>
+          <h1 className="text-4xl font-semibold ">Izhar</h1>
           <p className="text-slate-500">Enter your email and password to access your account</p>
         </div>
 
