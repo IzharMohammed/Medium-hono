@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import axios from "axios";
@@ -13,13 +13,13 @@ function FormPage() {
     
     const editor = useRef(null);
     
-    const location = useLocation();
+    // const location = useLocation();
     const [content, setContent] = useState('');
     const [title, setTitle] = useState('');
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const BACKEND_URL = getBackendUrl();
-    const id = location.state;
+    // const id = location.state;
     // console.log(id);
 
     const token = localStorage.getItem('token') as string;

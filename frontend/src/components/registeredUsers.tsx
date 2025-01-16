@@ -47,7 +47,7 @@ const RegisteredUsers: React.FC<ReceivedFriendRequestProps> = ({ receivedFriendR
 
     const handleAcceptFriendRequest = async (senderId: number) => {
         try {
-            const response = await axios.patch(`${BACKEND_URL}/api/v1/followRequests/${senderId}/accept`);
+            await axios.patch(`${BACKEND_URL}/api/v1/followRequests/${senderId}/accept`);
             // console.log('frd req accepted', response);
             navigate('/chatPage');
         } catch (error) {
