@@ -38,7 +38,7 @@ const ChatPage = ({ socket }: ChatPageProps) => {
     console.log('socket', socket);
 
     const token = localStorage.getItem('token') as string;
-    console.log(jwtDecode(token));
+    // console.log(jwtDecode(token));
 
     const { username }: { username: string } = jwtDecode(token);
     console.log(username);

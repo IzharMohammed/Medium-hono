@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Bell, Moon, Sun } from "lucide-react";
+import { Bell, MessageCircle, Moon, Sun } from "lucide-react";
 
 import { Button } from "../../components/ui/button"
 import {
@@ -106,6 +106,7 @@ function Navbar() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
+                        <div className="flex justify-center items-center mb-2 cursor-pointer" onClick={()=> navigate('/chatPage')}> <MessageCircle size={16} /></div>
                         <div className="m-2">
                             <Sheet>
                                 <SheetTrigger><Bell className="h-4 w-4" /></SheetTrigger>
