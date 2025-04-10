@@ -9,7 +9,7 @@ function App() {
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <MainRoutes />
-      </ThemeProvider>``
+      </ThemeProvider>
     </>
   )
 }

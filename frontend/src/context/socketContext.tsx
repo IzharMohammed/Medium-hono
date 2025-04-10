@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import * as io from "socket.io-client";
 
 // Define the type for the Socket context, which contains a Socket instance or null
@@ -12,6 +12,8 @@ const INITIAL_STATE: SocketContextType = { socket: null }
 // Create the SocketContext using React's createContext API with the initial state
 export const SocketContext = createContext<SocketContextType>(INITIAL_STATE);
 
+const useSocket = () => useContext(SocketContext);
+
 // SocketContextProvider component, which will wrap around components that need access to the socket
 const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     // Define a piece of state to hold the socket instance, initially set to null
@@ -21,7 +23,7 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         // Create a new connection to the socket server at localhost:4000
         const socket = io.connect("http://localhost:4000");
-        
+
         // Update the state with the connected socket instance
         setSocket(socket);
 
@@ -40,8 +42,8 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     return (
         <SocketContext.Provider value={{ socket }}>
             {children}  {/* Render any child components inside the provider */}
-        </SocketContext.Provider> 
+        </SocketContext.Provider>
     );
 }
 
-export default SocketContextProvider;  // Export the provider to be used in the app
+export default {SocketContextProvider, useSocket};  // Export the provider to be used in the app

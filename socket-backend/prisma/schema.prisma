@@ -1,0 +1,81 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int             @id @default(autoincrement())
+  email                  String          @unique
+  password               String
+  name                   String
+  posts                  Post[]
+  sentFollowRequests     FollowRequest[] @relation("SentFollowRequest")
+  receivedFollowRequests FollowRequest[] @relation("ReceivedFollowRequest")
+  Chat                   Chat[]
+  Chat                   Chat?           @relation(fields: [chatId], references: [id])
+  chatId                 Int?
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  imageUrl  String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Date
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model FollowRequest {
+  id Int @id @default(autoincrement())
+
+  // Sender side of the relationship
+  sender   User @relation("SentFollowRequest", fields: [senderId], references: [id])
+  senderId Int
+
+  // Receiver side of the relationship
+  receiver   User @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
+  receiverId Int
+
+  status    FollowStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  // Enforce uniqueness to prevent duplicate follow requests
+  @@unique([senderId, receiverId, status])
+  // Indexes to speed up queries based on senderId and receiverId
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Chat {
+  id            Int           @id @default(autoincrement())
+  name          String
+  isGroupChat   Boolean       @default(false)
+  lastMessage   ChatMessage?  @relation(fields: [lastMessageId], references: [id])
+  lastMessageId Int?
+  participants  User[]        @relation("ChatParticipants")
+  admin         User?         @relation(fields: [adminId], references: [id])
+  adminId       Int?
+  messages      ChatMessage[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id   Int    @id @default(autoincrement())
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
