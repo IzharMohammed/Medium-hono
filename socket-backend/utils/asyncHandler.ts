@@ -13,6 +13,11 @@ Preserves TypeScript type checking for route handlersF
  * @param requestHandler Async express request handler
  * @returns Promise-handling middleware
  */
+type CustomRequestHandler = (
+    req: Request,
+    res: Response,
+    next?: NextFunction
+)=> Promise<any>
 
 const asyncHandler = (requestHandler: RequestHandler): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -20,4 +25,4 @@ const asyncHandler = (requestHandler: RequestHandler): RequestHandler => {
     }
 }
 
-export { asyncHandler };
+export { asyncHandler };    

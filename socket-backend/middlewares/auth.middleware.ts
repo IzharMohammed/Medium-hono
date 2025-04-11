@@ -33,4 +33,4 @@ export const verifyJwt = asyncHandler(async (req: Request, res: Response, next: 
         throw new ApiError(HttpStatusCode.UNAUTHORIZED, error?.message || "Invalid access token");
 
     }
-})
+});

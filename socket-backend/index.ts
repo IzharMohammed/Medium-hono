@@ -4,8 +4,8 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import express from "express";
 import cors from "cors";
-import chatRouter from "./routes/chatRouter";
-import messageRouter from "./routes/messageRouter";
+import chatRouter from "./routes/chat.routes";
+import messageRouter from "./routes/message.routes";
 import { InitializeSocketIO } from "./socket";
 import { errorHandler } from "./middlewares/error.middlewares";
 
