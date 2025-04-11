@@ -4,7 +4,7 @@ import { HttpStatusCode } from "../types";
  * Custom error class for consistent error handling across the application
  */
 class ApiError extends Error {
-    public statusCode: HttpStatusCode | number;
+    public statusCode:  | number;
     public success: boolean;
     public data: null;
     public errors: any;

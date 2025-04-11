@@ -7,6 +7,7 @@ import cors from "cors";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
 import { InitializeSocketIO } from "./socket";
+import { errorHandler } from "./middlewares/error.middlewares";
 
 // Create an Express application
 const app = express();
@@ -14,7 +15,6 @@ app.use(express.json());
 // Create an HTTP server with Express
 // const server = http.createServer(app);
 const httpServer = createServer(app);
-
 const io = new Server(httpServer, {
     pingTimeout: 60000,
     cors: {
@@ -112,6 +112,7 @@ app.get('/test', (req, res) => {
 //     });
 // });
 InitializeSocketIO(io);
+app.use(errorHandler);
 
 // Start the HTTP server and listen on the defined port
 httpServer.listen(PORT, () => {
