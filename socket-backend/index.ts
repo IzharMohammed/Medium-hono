@@ -6,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
+import { InitializeSocketIO } from "./socket";
 
 // Create an Express application
 const app = express();
@@ -110,7 +111,7 @@ app.get('/test', (req, res) => {
 //         console.log('disconnected');
 //     });
 // });
-
+InitializeSocketIO(io);
 
 // Start the HTTP server and listen on the defined port
 httpServer.listen(PORT, () => {

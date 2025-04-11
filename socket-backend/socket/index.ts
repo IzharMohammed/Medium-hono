@@ -1,6 +1,12 @@
 import { ChatEventEnum } from "../constants"
 import cookie from "cookie";
 import jwt from "jsonwebtoken";
+import { PrismaClient } from '@prisma/client';
+import { Server } from "socket.io";
+import { ApiError } from "../utils/ApiError";
+import { HttpStatusCode } from "../types";
+
+const prisma = new PrismaClient();
 
 const mountJoinChatEvent = (socket: any) => {
     socket.on(ChatEventEnum.JOIN_CHAT_EVENT, (chatId: string) => {
@@ -30,8 +36,10 @@ const InitializeSocketIO = (io: any) => {
 
             // parse the cookies from the handshake headers (This is only possible if client has `withCredentials: true`)
             const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
+            console.log("cookies", cookies);
 
             let token = cookies?.accessToken; // get the accessToken
+            console.log("token", token);
 
             if (!token) {
                 // If there is no access token in cookies. Check inside the handshake auth
@@ -40,27 +48,25 @@ const InitializeSocketIO = (io: any) => {
 
             if (!token) {
                 // Token is required for the socket to work
-                // throw new ApiError(401, "Un-authorized handshake. Token is missing");
+                throw new ApiError(HttpStatusCode.UNAUTHORIZED, "Un-authorized handshake. Token is missing");
             }
 
             const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!); // decode the token
-
-            // const user = await User.findById(decodedToken?._id).select(
-            //     "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
-            // );
+            const user = await prisma.user.findUnique({ where: { id: Number(decodedToken) } });
 
             // retrieve the user
             if (!user) {
-                // throw new ApiError(401, "Un-authorized handshake. Token is invalid");
+                throw new Error("Un-authorized handshake. Token is invalid");
             }
+
             socket.user = user; // mount te user object to the socket
 
             // We are creating a room with user id so that if user is joined but does not have any active chat going on.
             // still we want to emit some socket events to the user.
             // so that the client can catch the event and show the notifications.
-            socket.join(user._id.toString());
+            socket.join(user.id.toString());
             socket.emit(ChatEventEnum.CONNECTED_EVENT); // emit the connected event so that client is aware
-            console.log("User connected 🗼. userId: ", user._id.toString());
+            console.log("User connected 🗼. userId: ", user.id.toString());
 
             // Common events that needs to be mounted on the initialization
             mountJoinChatEvent(socket);
@@ -73,6 +79,7 @@ const InitializeSocketIO = (io: any) => {
                     socket.leave(socket.user._id);
                 }
             });
+
         } catch (error) {
             socket.emit(
                 ChatEventEnum.SOCKET_ERROR_EVENT,
@@ -80,4 +87,14 @@ const InitializeSocketIO = (io: any) => {
             )
         }
     })
+};
+
+const emitSocketEvent = (
+    req: Request & { app: { get(name: "io"): Server } },
+    roomId: string,
+    event: any,
+    payload: any): void => {
+    req.app.get("io").in(roomId).emit(event, payload);
 }
+
+export { emitSocketEvent, InitializeSocketIO };

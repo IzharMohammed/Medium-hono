@@ -1,4 +1,3 @@
-
 /**
  * @description set of events that we are using in chat app. more to be added as we develop the chat app
  */
