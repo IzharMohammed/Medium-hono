@@ -90,7 +90,8 @@ const InitializeSocketIO = (io: any) => {
 };
 
 const emitSocketEvent = (
-    req: Request & { app: { get(name: "io"): Server } },
+    // req: Request & { app: { get(name: "io"): Server } },
+    req: any,
     roomId: string,
     event: any,
     payload: any): void => {
