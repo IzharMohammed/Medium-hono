@@ -286,7 +286,57 @@ const deleteGroupChat = asyncHandler(async (req: Request, res: Response) => {
 
 });
 
-const removeParticipantFromGroupChat = asyncHandler(async (req: Request, res: Response) => { });
+const removeParticipantFromGroupChat = asyncHandler(async (req: Request, res: Response) => {
+    const { chatId, participantId } = req.params;
+    //@ts-ignore
+    const userId = req.user.id;
+    const groupChat = await prisma.chat.findFirst({
+        where: {
+            id: Number(chatId),
+            isGroupChat: true,
+        },
+        include: {
+            admin: true,
+            participants: true,
+        }
+    });
+
+    if (!groupChat) throw new ApiError(HttpStatusCode.NOT_FOUND, "Group chat not found");
+
+    if (userId !== groupChat.admin?.id) throw new ApiError(HttpStatusCode.FORBIDDEN, "Only admin can remove participants");
+    const existingParticipants = groupChat.participants;
+
+    if (!existingParticipants.find(p => p.id === Number(participantId))) {
+        throw new ApiError(HttpStatusCode.BAD_REQUEST, "Participant does not exist in the group chat");
+    }
+
+    const updatedChat = await prisma.chat.update({
+        where: {
+            id: Number(chatId)
+        },
+        data: {
+            participants: {
+                disconnect: {
+                    id: Number(participantId)
+                }
+            }
+        },
+        include: {
+            participants: true,
+            admin: true,
+        }
+    })
+
+    emitSocketEvent(
+        req,
+        participantId,
+        ChatEventEnum.LEAVE_CHAT_EVENT,
+        updatedChat
+    ),
+
+        res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, updatedChat, "Participant removed sucessfully"))
+
+});
 
 const addNewParticipantInGroupChat = asyncHandler(async (req: Request, res: Response) => { });
 
