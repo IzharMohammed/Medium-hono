@@ -387,13 +387,65 @@ const addNewParticipantInGroupChat = asyncHandler(async (req: Request, res: Resp
         updatedChats
     );
 
-    res.status(HttpStatusCode.OK).json(
-        new ApiResponse(HttpStatusCode.OK, updatedChats, "Participant added successfully")
-    );
+    res
+        .status(HttpStatusCode.OK)
+        .json(
+            new ApiResponse(HttpStatusCode.OK, updatedChats, "Participant added successfully")
+        );
 
 });
 
-const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => { });
+const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => {
+    const { chatId } = req.params;
+
+    //@ts-ignore
+    const userId = req.user.id;
+
+    const groupChat = await prisma.chat.findFirst({
+        where: {
+            id: Number(chatId),
+            isGroupChat: true,
+        },
+        include: {
+            admin: true,
+            participants: true
+        }
+    });
+
+    if (!groupChat) throw new ApiError(HttpStatusCode.NOT_FOUND, "Group chat does not exist");
+
+    const existingParticipants = groupChat.participants;
+
+    if (!existingParticipants.find(p => p.id === Number(userId))) throw new ApiError(HttpStatusCode.BAD_REQUEST, "You are not a part of this group chat");
+
+    const updatedChat = await prisma.chat.update({
+        where: {
+            id: Number(chatId)
+        },
+        data: {
+            participants: {
+                disconnect: {
+                    id: Number(userId)
+                }
+            }
+        },
+        include: {
+            participants: true,
+            admin: true
+        }
+    });
+
+    emitSocketEvent(
+        req,
+        chatId,
+        ChatEventEnum.LEAVE_CHAT_EVENT,
+        updatedChat
+    );
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, updatedChat, "Left a group successfully"));
+});
 
 const deleteOneOnOneChat = asyncHandler(async (req: Request, res: Response) => { });
 
