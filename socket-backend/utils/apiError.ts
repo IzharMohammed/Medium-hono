@@ -1,5 +1,3 @@
-import { HttpStatusCode } from "../types";
-
 /**
  * Custom error class for consistent error handling across the application
  */

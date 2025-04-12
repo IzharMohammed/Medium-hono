@@ -338,7 +338,60 @@ const removeParticipantFromGroupChat = asyncHandler(async (req: Request, res: Re
 
 });
 
-const addNewParticipantInGroupChat = asyncHandler(async (req: Request, res: Response) => { });
+const addNewParticipantInGroupChat = asyncHandler(async (req: Request, res: Response) => {
+    const { chatId, participantId } = req.params;
+    //@ts-ignore
+    const userId = req.user.id;
+    const groupChat = await prisma.chat.findFirst({
+        where: {
+            id: Number(chatId),
+            isGroupChat: true,
+        },
+        include: {
+            participants: true,
+            admin: true,
+        }
+    })
+
+    if (!groupChat) throw new ApiError(HttpStatusCode.NOT_FOUND, "Group chat not found");
+
+    if (userId !== groupChat?.admin?.id) throw new ApiError(HttpStatusCode.FORBIDDEN, "Only admin can add participants");
+
+    const existingparticipants = groupChat.participants;
+
+    if (existingparticipants.find(p => p.id === Number(participantId))) throw new ApiError(HttpStatusCode.CONFLICT, "Participant already in group chat");
+
+    const newUserDetails = await prisma.user.findUnique({ where: { id: Number(participantId) } });
+
+    const updatedChats = await prisma.chat.update({
+        where: {
+            id: Number(chatId)
+        },
+        data: {
+            participants: {
+                connect: {
+                    id: Number(participantId)
+                }
+            }
+        },
+        include: {
+            participants: true,
+            admin: true
+        }
+    });
+
+    emitSocketEvent(
+        req,
+        participantId,
+        ChatEventEnum.NEW_CHAT_EVENT,
+        updatedChats
+    );
+
+    res.status(HttpStatusCode.OK).json(
+        new ApiResponse(HttpStatusCode.OK, updatedChats, "Participant added successfully")
+    );
+
+});
 
 const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => { });
 
