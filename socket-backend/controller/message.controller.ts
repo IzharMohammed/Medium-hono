@@ -24,12 +24,13 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
             messages: true,
         }
     });
+    console.log("selectedChat", selectedChat);
 
     if (!selectedChat) {
         throw new ApiError(HttpStatusCode.NOT_FOUND, "Chat does not exist");
     }
 
-    if (!selectedChat.participants.includes(userId)) {
+    if (!selectedChat.participants.some(participant => participant.id === userId)) {
         throw new ApiError(HttpStatusCode.BAD_REQUEST, "user is not a part of this chat");
     }
 
@@ -41,10 +42,11 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
             createdAt: "desc"
         }
     });
+console.log("messages",messages);
 
     res
         .status(HttpStatusCode.OK)
-        .json(new ApiResponse(HttpStatusCode.OK, messages || [], "Messages fetched successfully...!!!"));
+        .json(new ApiResponse(HttpStatusCode.OK, selectedChat || [], "Messages fetched successfully...!!!"));
 });
 
 const sendMessage = asyncHandler(async (req: Request, res: Response) => {

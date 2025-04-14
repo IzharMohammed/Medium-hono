@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch index.ts"
+    "dev": "tsx watch index.ts",
+    "db:seed": "npx tsx --env-file=./.env ./prisma/seed/index.ts"
   },
   "keywords": [],
   "author": "",

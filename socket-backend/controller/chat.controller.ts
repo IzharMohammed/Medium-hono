@@ -12,9 +12,15 @@ const prisma = new PrismaClient();
 const getAllChats = asyncHandler(async (req: Request, res: Response) => {
     //@ts-ignore
     const id = req.user.id;
+    console.log("id", id);
+
     const chats = await prisma.chat.findMany({
         where: {
-            id
+            participants: {
+                some: {
+                    id
+                }
+            }
         },
         orderBy: {
             updatedAt: "desc"
@@ -28,8 +34,9 @@ const getAllChats = asyncHandler(async (req: Request, res: Response) => {
             }
         }
     });
+    console.log("chats", chats);
 
-    res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, chats || [], "User chats fetched successfully"))
+    res.status(200).json(new ApiResponse(200, chats || [], "User chats fetched successfully"))
 });
 
 const searchAvailabeUsers = asyncHandler(async (req: Request, res: Response) => {
@@ -61,9 +68,11 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
             },
             include: {
                 participants: true,
+                messages:true
             }
         });
-
+        console.log("all chats",allChats);
+        
     const existingChat = allChats.find(chat => {
         const ids = chat.participants.map(p => p.id).sort();
         return (
@@ -72,7 +81,8 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
             ids.includes(userId)
         )
     });
-
+    console.log("existingChat",existingChat);
+    
     if (existingChat) {
         res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, existingChat[0], "Chat retrieved successfully"));
     }
@@ -83,11 +93,15 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
             isGroupChat: false,
             participants: {
                 connect: [
-                    { id: receiverId },
+                    { id: Number(receiverId) },
                     { id: userId }
                 ]
             },
-            admin: userId,
+            admin: {
+                connect:{
+                    id: userId
+                }
+            },
 
         },
         include: {
@@ -126,17 +140,21 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const uniqueMembers = [...new Set([...participants, userId])];
-
+    
     if (uniqueMembers.length < 3) {
         throw new ApiError(400, "Group must have at least 3 unique members including the creator");
     }
 
     const groupChat = await prisma.chat.create({
         data: {
-            admin: userId,
+            admin: {
+                connect: {
+                    id: userId
+                }
+            },
             isGroupChat: true,
             participants: {
-                connect: uniqueMembers.map(id => id)
+                connect: uniqueMembers.map(id => ({id}))
             },
             name: "Group chat"
         },
@@ -170,11 +188,15 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const getGroupChatDetails = asyncHandler(async (req: Request, res: Response) => {
-    const { chatId } = req.body;
+    const { chatId } = req.params;
     const groupChat = await prisma.chat.findFirst({
         where: {
-            id: chatId,
+            id: Number(chatId),
             isGroupChat: true,
+        },
+        include:{
+            admin: true,
+            participants: true,
         }
     })
 
@@ -209,7 +231,7 @@ const renameGroupChat = asyncHandler(async (req: Request, res: Response) => {
 
     //@ts-ignore
     const userId = req.user.id;
-    if (groupChat.admin?.id === userId) throw new ApiError(HttpStatusCode.NOT_FOUND, "You are not an admin");
+    if (groupChat.admin?.id !== userId) throw new ApiError(HttpStatusCode.NOT_FOUND, "You are not an admin");
 
     const updatedGroupChat = await prisma.chat.update({
         where: {

@@ -35,10 +35,10 @@ const InitializeSocketIO = (io: any) => {
         try {
 
             // parse the cookies from the handshake headers (This is only possible if client has `withCredentials: true`)
-            const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
-            console.log("cookies", cookies);
+            // const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
+            // console.log("cookies", cookies);
 
-            let token = cookies?.accessToken; // get the accessToken
+            let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhbmRvbUBnbWFpbC5jb20iLCJpZCI6MjcsInVzZXJuYW1lIjoicmFuZG9tIn0.zLnf8vFIDREDSogVrHznWjTWL59dH43io1onCf3T1Bw"// get the accessToken
             console.log("token", token);
 
             if (!token) {
@@ -50,9 +50,12 @@ const InitializeSocketIO = (io: any) => {
                 // Token is required for the socket to work
                 throw new ApiError(HttpStatusCode.UNAUTHORIZED, "Un-authorized handshake. Token is missing");
             }
+            // const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!); // decode the token
+            const decodedToken = jwt.verify(token, "secret"); // decode the token
 
-            const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!); // decode the token
-            const user = await prisma.user.findUnique({ where: { id: Number(decodedToken) } });
+            // console.log("decodedToken", decodedToken);
+            //@ts-ignore
+            const user = await prisma.user.findUnique({ where: { id: Number(decodedToken.id) } });
 
             // retrieve the user
             if (!user) {

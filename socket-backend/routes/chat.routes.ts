@@ -15,7 +15,7 @@ router.route("/c/:receiverId").post(createOrGetAOneOnOneChat);
 router.route("/group").post(createAGroupChat);
 
 router
-    .route("/")
+    .route("/group/:chatId")
     .get(getGroupChatDetails)
     .patch(renameGroupChat)
     .delete(deleteGroupChat);

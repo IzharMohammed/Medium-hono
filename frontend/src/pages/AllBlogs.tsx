@@ -17,12 +17,13 @@ interface Blog {
 }
 
 
- function AllBlogs() {
-     const BACKEND_URL = getBackendUrl();
+function AllBlogs() {
+    const BACKEND_URL = getBackendUrl();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const navigate = useNavigate();
     const [loading, setloading] = useState(true);
     const [search, setsearch] = useState('');
+    console.log(localStorage.getItem("token"));
 
     const fetchBlogById = async () => {
         setloading(true);

@@ -15,6 +15,10 @@ export const SocketContext = createContext<SocketContextType>(INITIAL_STATE);
 const useSocket = () => useContext(SocketContext);
 
 // SocketContextProvider component, which will wrap around components that need access to the socket
+
+//M-1
+// const SocketContextProvider: React.FC<{ children: React.ReactNode }> = ({
+
 const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     // Define a piece of state to hold the socket instance, initially set to null
     const [socket, setSocket] = useState<io.Socket | null>(null);
@@ -46,4 +50,4 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     );
 }
 
-export default {SocketContextProvider, useSocket};  // Export the provider to be used in the app
+export  {SocketContextProvider, useSocket};  // Export the provider to be used in the app

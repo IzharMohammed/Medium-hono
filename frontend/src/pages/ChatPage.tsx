@@ -39,34 +39,34 @@ const MESSAGE_DELETE_EVENT = "messageDeleted";
 //Method - 2 
 const ChatPage = ({ socket }: ChatPageProps) => {
     const [messages, setMessages] = useState<Message[]>([]);
-    // const [roomId, setRoomId] = useState('');
+    const [roomId, setRoomId] = useState('');
 
-    // Create a reference using 'useRef' to hold the currently selected chat.
-    // 'useRef' is used here because it ensures that the 'currentChat' value within socket event callbacks
-    // will always refer to the latest value, even if the component re-renders.
-    const currentChat = useRef<ChatListItemInterface | null>(null);
+    // // Create a reference using 'useRef' to hold the currently selected chat.
+    // // 'useRef' is used here because it ensures that the 'currentChat' value within socket event callbacks
+    // // will always refer to the latest value, even if the component re-renders.
+    // const currentChat = useRef<ChatListItemInterface | null>(null);
 
-    // To keep track of the setTimeout function
-    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    // // To keep track of the setTimeout function
+    // const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Define state variables and their initial values using 'useState'
-    const [isConnected, setIsConnected] = useState(false); // For tracking socket connection
+    // // Define state variables and their initial values using 'useState'
+    // const [isConnected, setIsConnected] = useState(false); // For tracking socket connection
 
-    const [openAddChat, setOpenAddChat] = useState(false); // To control the 'Add Chat' modal
-    const [loadingChats, setLoadingChats] = useState(false); // To indicate loading of chats
-    const [loadingMessages, setLoadingMessages] = useState(false); // To indicate loading of messages
+    // const [openAddChat, setOpenAddChat] = useState(false); // To control the 'Add Chat' modal
+    // const [loadingChats, setLoadingChats] = useState(false); // To indicate loading of chats
+    // const [loadingMessages, setLoadingMessages] = useState(false); // To indicate loading of messages
 
-    const [chats, setChats] = useState<ChatListItemInterface[]>([]); // To store user's chats
-    const [messages, setMessages] = useState<ChatMessageInterface[]>([]); // To store chat messages
-    const [unreadMessages, setUnreadMessages] = useState<ChatMessageInterface[]>(
-        []
-    ); // To track unread messages
+    // const [chats, setChats] = useState<ChatListItemInterface[]>([]); // To store user's chats
+    // const [messages, setMessages] = useState<ChatMessageInterface[]>([]); // To store chat messages
+    // const [unreadMessages, setUnreadMessages] = useState<ChatMessageInterface[]>(
+    //     []
+    // ); // To track unread messages
 
-    const [isTyping, setIsTyping] = useState(false); // To track if someone is currently typing
-    const [selfTyping, setSelfTyping] = useState(false); // To track if the current user is typing
+    // const [isTyping, setIsTyping] = useState(false); // To track if someone is currently typing
+    // const [selfTyping, setSelfTyping] = useState(false); // To track if the current user is typing
 
-    const [message, setMessage] = useState(""); // To store the currently typed message
-    const [localSearchQuery, setLocalSearchQuery] = useState(""); // For local search functionality
+    // const [message, setMessage] = useState(""); // To store the currently typed message
+    // const [localSearchQuery, setLocalSearchQuery] = useState(""); // For local search functionality
 
     useEffect(() => {
         console.log(messages);
@@ -82,18 +82,18 @@ const ChatPage = ({ socket }: ChatPageProps) => {
     const { username }: { username: string } = jwtDecode(token);
     console.log(username);
 
-    // useEffect(() => {
-    //     if(!socket) return;
+    useEffect(() => {
+        if(!socket) return;
 
-    //     socket.on('join_room', (data) => {
-    //         console.log(`${data} joined from client side`);
-    //         socket.emit('join_room', data);
-    //     })
+        socket.on('join_room', (data) => {
+            console.log(`${data} joined from client side`);
+            socket.emit('join_room', data);
+        })
 
-    //     return () => {
-    //         socket.off('join_room');
-    //     }
-    // }, [socket])
+        return () => {
+            socket.off('join_room');
+        }
+    }, [socket])
 
 
     return (
