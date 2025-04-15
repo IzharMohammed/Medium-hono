@@ -66,7 +66,7 @@ const getChatMessages = (chatId: string) => {
     return apiClient.get(`/chat-app/messages/${chatId}`);
 };
 
-const sendMessage = (chatId: string, content: string, attachments: File[]) => {
+const sendMessage = (chatId: string, content: string, attachments: File[] = []) => {
     const formData = new FormData();
     if (content) {
         formData.append("content", content);
