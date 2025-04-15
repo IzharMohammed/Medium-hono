@@ -62,8 +62,12 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
  * Updates last message reference and notifies other participants via socket
  */
 const sendMessage = asyncHandler(async (req: Request, res: Response) => {
+        console.log("here");
+        console.log(req.body);
+        
     const { chatId } = req.params;
     const { content } = req.body;
+    
     //@ts-ignore
     const userId = req.user.id;
 

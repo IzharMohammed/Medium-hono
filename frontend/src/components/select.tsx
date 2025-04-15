@@ -13,7 +13,8 @@ const Select: React.FC<{
   placeholder: string;
 }> = ({ options, value, placeholder, onChange }) => {
   const [localOptions, setLocalOptions] = useState<typeof options>([]);
-
+  console.log("localOptions",localOptions);
+  
   useEffect(() => {
     setLocalOptions(options);
   }, [options]);
@@ -29,7 +30,7 @@ const Select: React.FC<{
         <Combobox.Button className="w-full">
           <Combobox.Input
             placeholder={placeholder}
-            className="block w-full rounded-xl border-0 py-4 px-5 bg-secondary outline outline-[1px] outline-zinc-400 text-white font-light placeholder:text-white/70 focus:ring-[1px] focus:ring-white"
+            className="block w-full rounded-xl border-0 py-4 px-5 bg-secondary outline outline-[1px] outline-zinc-400 font-light placeholder:text-white/70 focus:ring-[1px] focus:ring-white"
             onChange={(e) => {
               setLocalOptions(
                 options.filter((op) => op.label.includes(e.target.value))
@@ -54,7 +55,7 @@ const Select: React.FC<{
                 className={({ active }) =>
                   classNames(
                     "cursor-pointer relative rounded-2xl select-none py-4 pl-3 pr-9",
-                    active ? "bg-dark text-white" : "text-white"
+                    active ? "bg-dark border border-green-700 text-white" : "text-white"
                   )
                 }
               >

@@ -22,7 +22,7 @@ function MainRoutes() {
             <Route path="/allBlogs" element={<AllBlogs />}></Route>
             <Route path="/FullBlog" element={<FullBlog />}></Route>
             <Route path="/FormPage" element={<FormPage />}></Route>
-            <Route path="/chatPage" element={<ChatPage socket={socket} />}></Route>
+            <Route path="/chatPage" element={<ChatPage  />}></Route>
             <Route path="/userDetails" element={<UserDetails />}></Route>
         </Routes>
     )

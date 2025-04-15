@@ -1,14 +1,14 @@
 import { Socket } from "socket.io-client";
-import ChatFooter from "../components/Chats/ChatFooter";
-import ChatBody from "../components/Chats/ChatBody";
-import ChatBar from "../components/Chats/ChatBar";
+// import ChatFooter from "../components/Chats/ChatFooter";
+// import ChatBody from "../components/Chats/ChatBody";
+// import ChatBar from "../components/Chats/ChatBar";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useRef, useState } from "react";
 import Layout from "../layout/Layout";
 import { ChatListItemInterface, ChatMessageInterface } from "../interface/chat";
 import { classNames, getChatObjectMetadata, LocalStorage, requestHandler } from "../utils";
-import { getChatMessages, getUserChats, sendMessage } from "../api";
-import { useSocket } from "../context/socketContext";
+import { deleteMessage, getChatMessages, getUserChats, sendMessage } from "../api";
+// import { useSocket } from "../context/socketContext";
 import { Input } from "../components/ui/input";
 import Typing from "../components/typing";
 import { UserInterface } from "../interface/user";
@@ -21,6 +21,8 @@ import {
     XCircleIcon,
 } from "@heroicons/react/20/solid";
 import AddChatModal from "../components/addChatModal";
+import { Button } from "../components/ui/button";
+import { useSocket } from "../context/socketContext";
 
 interface ChatPageProps {
     socket: Socket | null;
@@ -45,12 +47,12 @@ const UPDATE_GROUP_NAME_EVENT = "updateGroupName";
 const MESSAGE_DELETE_EVENT = "messageDeleted";
 
 //Method - 2 
-const ChatPage = ({ socket }: ChatPageProps) => {
+const ChatPage = () => {
     // const [messages, setMessages] = useState<Message[]>([]);
-    const [roomId, setRoomId] = useState('');
+    // const [roomId, setRoomId] = useState('');
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]); // To store files attached to messages
 
-    // const {socket} = useSocket();
+    const {socket} = useSocket();
     // Create a reference using 'useRef' to hold the currently selected chat.
     // 'useRef' is used here because it ensures that the 'currentChat' value within socket event callbacks
     // will always refer to the latest value, even if the component re-renders.
@@ -205,10 +207,36 @@ const ChatPage = ({ socket }: ChatPageProps) => {
         setIsTyping(false);
     }
 
-    const getMessages = () => {
-        if (!currentChat.current?.id) return
-    }
+    const getMessages = async () => {
+        // Check if a chat is selected, if not, show an alert
+        if (!currentChat.current?.id) return alert("No chat is selected");
 
+        // Check if socket is available, if not, show an alert
+        if (!socket) return alert("Socket not available");
+
+        // Emit an event to join the current chat
+        socket.emit(JOIN_CHAT_EVENT, currentChat.current?.id);
+
+        // Filter out unread messages from the current chat as those will be read
+        setUnreadMessages(
+            unreadMessages.filter((msg) => msg.chat !== currentChat.current?.id)
+        );
+
+        // Make an async request to fetch chat messages for the current chat
+        requestHandler(
+            // Fetching messages for the current chat
+            async () => await getChatMessages(currentChat.current?.id || ""),
+            // Set the state to loading while fetching the messages
+            setLoadingMessages,
+            // After fetching, set the chat messages to the state if available
+            (res) => {
+                const { data } = res;
+                setMessages(data || []);
+            },
+            // Display any error alerts if they occur during the fetch
+            alert
+        );
+    };
     useEffect(() => {
         // Fetch the chat list from the server.
         getChats();
@@ -272,19 +300,153 @@ const ChatPage = ({ socket }: ChatPageProps) => {
         // updating on each `useEffect` call but on each socket call.
     }, [socket, chats]);
 
-    const onMessageReceived = () => { }
+    /**
+     * Handles the event when a new message is received.
+     */
+    const onMessageReceived = (message: ChatMessageInterface) => {
+        // Check if the received message belongs to the currently active chat
+        if (message?.chat !== currentChat.current?.id) {
+            // If not, update the list of unread messages
+            setUnreadMessages((prev) => [message, ...prev]);
+        } else {
+            // If it belongs to the current chat, update the messages list for the active chat
+            setMessages((prev) => [message, ...prev]);
+        }
 
-    const onNewChat = () => { }
+        // Update the last message for the chat to which the received message belongs
+        updateChatLastMessage(message.chat || "", message);
+    };
 
-    const onChatLeave = () => { }
+    const onNewChat = (chat: ChatListItemInterface) => {
+        setChats((prev) => [chat, ...prev]);
+    };
 
-    const onGroupNameChange = () => { }
+    // This function handles the event when a user leaves a chat.
+    const onChatLeave = (chat: ChatListItemInterface) => {
+        // Check if the chat the user is leaving is the current active chat.
+        if (chat.id === currentChat.current?.id) {
+            // If the user is in the group chat they're leaving, close the chat window.
+            currentChat.current = null;
+            // Remove the currentChat from local storage.
+            LocalStorage.remove("currentChat");
+        }
+        // Update the chats by removing the chat that the user left.
+        setChats((prev) => prev.filter((c) => c.id !== chat.id));
+    };
 
-    const onMessageDelete = () => { }
+    // Function to handle changes in group name
+    const onGroupNameChange = (chat: ChatListItemInterface) => {
+        // Check if the chat being changed is the currently active chat
+        if (chat.id === currentChat.current?.id) {
+            // Update the current chat with the new details
+            currentChat.current = chat;
 
-    const deleteChatMessage = () => { }
+            // Save the updated chat details to local storage
+            LocalStorage.set("currentChat", chat);
+        }
 
-    const handleOnMessageChange = () => { }
+        // Update the list of chats with the new chat details
+        setChats((prev) => [
+            // Map through the previous chats
+            ...prev.map((c) => {
+                // If the current chat in the map matches the chat being changed, return the updated chat
+                if (c.id === chat.id) {
+                    return chat;
+                }
+                // Otherwise, return the chat as-is without any changes
+                return c;
+            }),
+        ]);
+    };
+
+    const onMessageDelete = (message: ChatMessageInterface) => {
+        if (message?.chat !== currentChat.current?.id) {
+            setUnreadMessages((prev) =>
+                prev.filter((msg) => msg._id !== message._id)
+            );
+        } else {
+            setMessages((prev) => prev.filter((msg) => msg._id !== message._id));
+        }
+
+        updateChatLastMessageOnDeletion(message.chat, message);
+    };
+
+    /**
+ *A function to update the chats last message specifically in case of deletion of message *
+ **/
+
+    const updateChatLastMessageOnDeletion = (
+        chatToUpdateId: string, //ChatId to find the chat
+        message: ChatMessageInterface //The deleted message
+    ) => {
+        // Search for the chat with the given ID in the chats array
+        const chatToUpdate = chats.find((chat) => chat.id === chatToUpdateId)!;
+
+        //Updating the last message of chat only in case of deleted message and chats last message is same
+        if (chatToUpdate.lastMessage?._id === message._id) {
+            requestHandler(
+                async () => getChatMessages(chatToUpdateId),
+                null,
+                (req) => {
+                    const { data } = req;
+
+                    chatToUpdate.lastMessage = data[0];
+                    setChats([...chats]);
+                },
+                alert
+            );
+        }
+    };
+
+    const deleteChatMessage = async (message: ChatMessageInterface) => {
+        //ONClick delete the message and reload the chat when deleteMessage socket gives any response in chat.tsx
+        //use request handler to prevent any errors
+
+        await requestHandler(
+            async () => await deleteMessage(message.chat, message._id),
+            null,
+            (res) => {
+                setMessages((prev) => prev.filter((msg) => msg._id !== res.data._id));
+                updateChatLastMessageOnDeletion(message.chat, message);
+            },
+            alert
+        );
+    };
+
+    const handleOnMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Update the message state with the current input value
+        setMessage(e.target.value);
+
+        // If socket doesn't exist or isn't connected, exit the function
+        if (!socket || !isConnected) return;
+
+        // Check if the user isn't already set as typing
+        if (!selfTyping) {
+            // Set the user as typing
+            setSelfTyping(true);
+
+            // Emit a typing event to the server for the current chat
+            socket.emit(TYPING_EVENT, currentChat.current?.id);
+        }
+
+        // Clear the previous timeout (if exists) to avoid multiple setTimeouts from running
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        // Define a length of time (in milliseconds) for the typing timeout
+        const timerLength = 3000;
+
+        // Set a timeout to stop the typing indication after the timerLength has passed
+        typingTimeoutRef.current = setTimeout(() => {
+            // Emit a stop typing event to the server for the current chat
+            socket.emit(STOP_TYPING_EVENT, currentChat.current?.id);
+
+            // Reset the user's typing state
+            setSelfTyping(false);
+        }, timerLength);
+    };
+
     return (
         <Layout>
             <AddChatModal
@@ -316,12 +478,12 @@ const ChatPage = ({ socket }: ChatPageProps) => {
                                 setLocalSearchQuery(e.target.value.toLowerCase())
                             }
                         />
-                        <button
+                        <Button
                             onClick={() => setOpenAddChat(true)}
-                            className="rounded-xl border-none bg-primary text-white py-4 px-5 flex flex-shrink-0"
+                            className="rounded-xl border-none py-4 px-5 flex flex-shrink-0"
                         >
                             + Add chat
-                        </button>
+                        </Button>
                     </div>
                     {loadingChats ? (
                         <div className="flex justify-center items-center h-[calc(100%-88px)]">
@@ -442,7 +604,7 @@ const ChatPage = ({ socket }: ChatPageProps) => {
                                         {messages?.map((msg) => {
                                             return (
                                                 <MessageItem
-                                                    key={msg.id}
+                                                    key={msg._id}
                                                     isOwnMessage={msg.sender?.id === user?.id}
                                                     isGroupChatMessage={currentChat.current?.isGroupChat}
                                                     message={msg}
@@ -462,7 +624,7 @@ const ChatPage = ({ socket }: ChatPageProps) => {
                                                 className="group w-32 h-32 relative aspect-square rounded-xl cursor-pointer"
                                             >
                                                 <div className="absolute inset-0 flex justify-center items-center w-full h-full bg-black/40 group-hover:opacity-100 opacity-0 transition-opacity ease-in-out duration-150">
-                                                    <button
+                                                    <Button
                                                         onClick={() => {
                                                             setAttachedFiles(
                                                                 attachedFiles.filter((_, ind) => ind !== i)
@@ -471,7 +633,7 @@ const ChatPage = ({ socket }: ChatPageProps) => {
                                                         className="absolute -top-2 -right-2"
                                                     >
                                                         <XCircleIcon className="h-6 w-6 text-white" />
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                                 <img
                                                     className="h-full rounded-xl w-full object-cover"
@@ -514,13 +676,13 @@ const ChatPage = ({ socket }: ChatPageProps) => {
                                         }
                                     }}
                                 />
-                                <button
+                                <Button
                                     onClick={sendChatMessage}
                                     disabled={!message && attachedFiles.length <= 0}
                                     className="p-4 rounded-full bg-dark hover:bg-secondary disabled:opacity-50"
                                 >
                                     <PaperAirplaneIcon className="w-6 h-6" />
-                                </button>
+                                </Button>
                             </div>
                         </>
                     ) : (

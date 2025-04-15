@@ -245,7 +245,7 @@ const AddChatModal: React.FC<{
                     <div className="my-5">
                       <span
                         className={classNames(
-                          "font-medium text-white inline-flex items-center"
+                          "font-medium inline-flex items-center"
                         )}
                       >
                         <UserGroupIcon className="h-5 w-5 mr-2" /> Selected
@@ -266,7 +266,7 @@ const AddChatModal: React.FC<{
                                   className="h-6 w-6 rounded-full object-cover"
                                   src={participant?.avatar?.url}
                                 />
-                                <p className="text-white">
+                                <p className="">
                                   {participant.username}
                                 </p>
                                 <XCircleIcon
