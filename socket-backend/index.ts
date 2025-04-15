@@ -23,6 +23,7 @@ const io = new Server(httpServer, {
     }
 })
 app.set("io", io); // using set method to mount the `io` instance on the app to avoid usage of `global`
+console.log("process.env.CORS_ORIGIN",process.env.CORS_ORIGIN);
 
 // Apply CORS middleware to allow cross-origin requests
 app.use(cors({
