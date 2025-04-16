@@ -23,6 +23,7 @@ import {
 import AddChatModal from "../components/addChatModal";
 import { Button } from "../components/ui/button";
 import { useSocket } from "../context/socketContext";
+import Navbar from "../components/Navbar/Navbar";
 
 interface ChatPageProps {
     socket: Socket | null;
@@ -52,7 +53,7 @@ const ChatPage = () => {
     // const [roomId, setRoomId] = useState('');
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]); // To store files attached to messages
 
-    const {socket} = useSocket();
+    const { socket } = useSocket();
     // Create a reference using 'useRef' to hold the currently selected chat.
     // 'useRef' is used here because it ensures that the 'currentChat' value within socket event callbacks
     // will always refer to the latest value, even if the component re-renders.
@@ -134,6 +135,7 @@ const ChatPage = () => {
 
         // Emit a STOP_TYPING_EVENT to inform other users/participants that typing has stopped
         socket.emit(STOP_TYPING_EVENT, currentChat.current.id);
+        console.log("message", message);
 
         // Use the requestHandler to send the message and handle potential response or error
         await requestHandler(
@@ -212,10 +214,16 @@ const ChatPage = () => {
         if (!currentChat.current?.id) return alert("No chat is selected");
 
         // Check if socket is available, if not, show an alert
-        if (!socket) return alert("Socket not available");
+        if (!socket) {
+            // return alert("Socket not available");
+            console.log("Socket not available");
+            return;
+        }
+        console.log("1");
 
         // Emit an event to join the current chat
-        socket.emit(JOIN_CHAT_EVENT, currentChat.current?.id);
+        socket!.emit(JOIN_CHAT_EVENT, currentChat.current?.id);
+        console.log("2");
 
         // Filter out unread messages from the current chat as those will be read
         setUnreadMessages(
@@ -231,11 +239,15 @@ const ChatPage = () => {
             // After fetching, set the chat messages to the state if available
             (res) => {
                 const { data } = res;
-                setMessages(data || []);
+                console.log("data", data);
+
+                setMessages(data.messages || []);
             },
             // Display any error alerts if they occur during the fetch
             alert
         );
+        console.log("3");
+
     };
     useEffect(() => {
         // Fetch the chat list from the server.
@@ -243,18 +255,23 @@ const ChatPage = () => {
 
         // Retrieve the current chat details from local storage.
         const _currentChat = LocalStorage.get("currentChat");
+        console.log("_currentChat", _currentChat);
 
         // If there's a current chat saved in local storage:
         if (_currentChat) {
             // Set the current chat reference to the one from local storage.
             currentChat.current = _currentChat;
             // If the socket connection exists, emit an event to join the specific chat using its ID.
-            socket?.emit(JOIN_CHAT_EVENT, _currentChat.current.id);
-            // Fetch the messages for the current chat.
-            getMessages();
+            if(socket){
+                socket?.emit(JOIN_CHAT_EVENT, _currentChat.id);
+                // Fetch the messages for the current chat.
+                console.log("0");
+    
+                getMessages();
+            }
         }
         // An empty dependency array ensures this useEffect runs only once, similar to componentDidMount.
-    }, [])
+    }, [socket])
 
     // This useEffect handles the setting up and tearing down of socket event listeners.
     useEffect(() => {
@@ -448,7 +465,9 @@ const ChatPage = () => {
     };
 
     return (
-        <Layout>
+        // <Layout>
+        <>
+            <Navbar />
             <AddChatModal
                 open={openAddChat}
                 onClose={() => {
@@ -458,7 +477,7 @@ const ChatPage = () => {
                     getChats();
                 }}
             />
-            <div className="w-full justify-between items-stretch h-screen flex flex-shrink-0">
+            <div className="w-full justify-between items-stretch h-screen flex flex-shrink-0 ">
                 <div className="w-1/3 relative ring-white overflow-y-auto px-4">
                     <div className="z-10 w-full sticky top-0 bg-dark py-4 flex justify-between items-center gap-4">
 
@@ -692,7 +711,8 @@ const ChatPage = () => {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
+        // </Layout>
     )
 }
 

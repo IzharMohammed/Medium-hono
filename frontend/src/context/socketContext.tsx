@@ -32,7 +32,7 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
         setSocket(socket);
 
         // Log the socket ID when successfully connected
-        socket.on('connect', () => {
+        socket.on('connected', () => {
             console.log(socket.id);
         })
 

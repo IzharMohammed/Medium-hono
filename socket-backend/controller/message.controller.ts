@@ -85,6 +85,7 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
             participants: true,
         }
     });
+console.log("chats",JSON.stringify(chats));
 
     // Check if chat exists
     if (!chats) {

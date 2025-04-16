@@ -67,14 +67,18 @@ const getChatMessages = (chatId: string) => {
 };
 
 const sendMessage = (chatId: string, content: string, attachments: File[] = []) => {
-    const formData = new FormData();
-    if (content) {
-        formData.append("content", content);
+    if (attachments.length > 0) {
+        const formData = new FormData();
+        if (content) {
+            formData.append("content", content);
+        }
+        attachments?.map((file) => {
+            formData.append("attachments", file);
+        });
+        return apiClient.post(`/chat-app/messages/${chatId}`, formData);
+    } else {
+        return apiClient.post(`/chat-app/messages/${chatId}`, { content });
     }
-    attachments?.map((file) => {
-        formData.append("attachments", file);
-    });
-    return apiClient.post(`/chat-app/messages/${chatId}`, formData);
 };
 
 const deleteMessage = (chatId: string, messageId: string) => {

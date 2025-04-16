@@ -147,7 +147,7 @@ const ChatItem: React.FC<{
                         {getChatObjectMetadata(chat, user!).title}
                     </p>
                     <div className="w-full inline-flex items-center text-left">
-                        {chat.lastMessage && chat.lastMessage.attachments.length > 0 ? (
+                        {chat.lastMessage && chat.lastMessage?.attachments?.length > 0 ? (
                             // If last message is an attachment show paperclip
                             <PaperClipIcon className="text-white/50 h-3 w-3 mr-2 flex flex-shrink-0" />
                         ) : null}
