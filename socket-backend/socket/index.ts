@@ -26,7 +26,7 @@ const mountParticipantTypingEvent = (socket: any) => {
 
 const mountParticipantStoppedTypingEvent = (socket: any) => {
     socket.on(ChatEventEnum.STOP_TYPING_EVENT, (chatId: string) => {
-        socket.in(ChatEventEnum.STOP_TYPING_EVENT, chatId);
+        socket.in(chatId).emit(ChatEventEnum.STOP_TYPING_EVENT, chatId);
     });
 };
 

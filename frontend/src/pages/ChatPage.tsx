@@ -87,7 +87,7 @@ const ChatPage = () => {
         socket.on("messageResponse", (data) => setMessages([...messages, data]))
     }, [socket, messages])
 
-    console.log('socket', socket);
+    // console.log('socket', socket);
 
     const token = localStorage.getItem('token') as string;
     const user = jwtDecode<UserInterface>(token);
@@ -101,7 +101,7 @@ const ChatPage = () => {
     //         id: payload.id,
     //     username: payload.username,
     // } 
-    console.log("user", user);
+    // console.log("user", user);
 
     // useEffect(() => {
     //     if (!socket) return;
@@ -204,7 +204,8 @@ const ChatPage = () => {
     const handleOnSocketStopTyping = (chatId: string) => {
         // Check if the stop typing event is for the currently active chat.
         if (chatId !== currentChat.current?.id) return;
-
+        console.log("stopping the typing from ui");
+        
         // Set the typing state to false for the current chat.
         setIsTyping(false);
     }
@@ -219,11 +220,9 @@ const ChatPage = () => {
             console.log("Socket not available");
             return;
         }
-        console.log("1");
 
         // Emit an event to join the current chat
         socket!.emit(JOIN_CHAT_EVENT, currentChat.current?.id);
-        console.log("2");
 
         // Filter out unread messages from the current chat as those will be read
         setUnreadMessages(
@@ -246,7 +245,6 @@ const ChatPage = () => {
             // Display any error alerts if they occur during the fetch
             alert
         );
-        console.log("3");
 
     };
     useEffect(() => {
@@ -262,11 +260,11 @@ const ChatPage = () => {
             // Set the current chat reference to the one from local storage.
             currentChat.current = _currentChat;
             // If the socket connection exists, emit an event to join the specific chat using its ID.
-            if(socket){
+            if (socket) {
                 socket?.emit(JOIN_CHAT_EVENT, _currentChat.id);
                 // Fetch the messages for the current chat.
                 console.log("0");
-    
+
                 getMessages();
             }
         }
@@ -450,6 +448,7 @@ const ChatPage = () => {
         if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
         }
+        console.log("typingTimeoutRef.current before", typingTimeoutRef.current);
 
         // Define a length of time (in milliseconds) for the typing timeout
         const timerLength = 3000;
@@ -458,10 +457,11 @@ const ChatPage = () => {
         typingTimeoutRef.current = setTimeout(() => {
             // Emit a stop typing event to the server for the current chat
             socket.emit(STOP_TYPING_EVENT, currentChat.current?.id);
-
             // Reset the user's typing state
             setSelfTyping(false);
         }, timerLength);
+        console.log("typingTimeoutRef.current after", typingTimeoutRef.current);
+
     };
 
     return (
