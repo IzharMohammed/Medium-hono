@@ -151,7 +151,7 @@ const ChatPage = () => {
                 // setAttachedFiles([]); // Clear the list of attached files
                 console.log("i am here ");
                 console.log(res.data);
-                
+
                 setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
                 updateChatLastMessage(currentChat.current?.id || "", res.data); // Update the last message in the chat
 
@@ -422,15 +422,15 @@ const ChatPage = () => {
     };
 
     const onMessageDelete = (message: ChatMessageInterface) => {
-        if (message?.chat !== currentChat.current?.id) {
+        if (message?.chatId !== currentChat.current?.id) {
             setUnreadMessages((prev) =>
-                prev.filter((msg) => msg._id !== message._id)
+                prev.filter((msg) => msg.id !== message.id)
             );
         } else {
-            setMessages((prev) => prev.filter((msg) => msg._id !== message._id));
+            setMessages((prev) => prev.filter((msg) => msg.id !== message.id));
         }
 
-        updateChatLastMessageOnDeletion(message.chat, message);
+        updateChatLastMessageOnDeletion(message.chatId, message);
     };
 
     /**
@@ -445,13 +445,13 @@ const ChatPage = () => {
         const chatToUpdate = chats.find((chat) => chat.id === chatToUpdateId)!;
 
         //Updating the last message of chat only in case of deleted message and chats last message is same
-        if (chatToUpdate.lastMessage?._id === message._id) {
+        if (chatToUpdate.lastMessage?.id === message.id) {
             requestHandler(
                 async () => getChatMessages(chatToUpdateId),
                 null,
                 (req) => {
                     const { data } = req;
-
+                    console.log(data);
                     chatToUpdate.lastMessage = data[0];
                     setChats([...chats]);
                 },
@@ -463,13 +463,14 @@ const ChatPage = () => {
     const deleteChatMessage = async (message: ChatMessageInterface) => {
         //ONClick delete the message and reload the chat when deleteMessage socket gives any response in chat.tsx
         //use request handler to prevent any errors
+        console.log(message);
 
         await requestHandler(
-            async () => await deleteMessage(message.chat, message._id),
+            async () => await deleteMessage(message.chatId, message.id),
             null,
             (res) => {
-                setMessages((prev) => prev.filter((msg) => msg._id !== res.data._id));
-                updateChatLastMessageOnDeletion(message.chat, message);
+                setMessages((prev) => prev.filter((msg) => msg.id !== res.data._id));
+                updateChatLastMessageOnDeletion(message.chatId, message);
             },
             alert
         );
@@ -583,6 +584,8 @@ const ChatPage = () => {
                                                 currentChat.current?.id === chat.id
                                             )
                                                 return;
+                                            console.log("currentChat", chat);
+
                                             LocalStorage.set("currentChat", chat);
                                             currentChat.current = chat;
                                             setMessage("");

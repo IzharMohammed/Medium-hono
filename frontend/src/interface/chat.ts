@@ -12,10 +12,11 @@ export interface ChatListItemInterface {
 }
 
 export interface ChatMessageInterface {
-  _id: string;
+  id: string;
   sender: Pick<UserInterface, "id" | "email" | "username" | "avatar">
   content: string;
   chat: string;
+  chatId: string;
   attachments: {
     url: string;
     localPath: string;

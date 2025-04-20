@@ -167,52 +167,59 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
  * - Soft delete vs hard delete
  * - Notify participants of deletion
  */
-// const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
-//     const { chatId, messageId } = req.params;
+const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
+    const { chatId, messageId } = req.params;
+    console.log(`chatId:- ${chatId} messageId:- ${messageId}`);
+    // @ts-ignore
+    const userId = req.user.id;
 
-//     //@ts-ignore
-//     const userId = req.user.id;
+    const chats = await prisma.chat.findFirst({
+        where: {
+            id: Number(chatId),
+        },
+        include: {
+            participants: true,
+        }
+    });
 
-//     const chats = await prisma.chat.findFirst({
-//         where: {
-//             id: Number(chatId),
-//         },
-//         include: {
-//             participants: true,
-//         }
-//     });
+    if (!chats) {
+        throw new ApiError(HttpStatusCode.NOT_FOUND, "chats does not exist");
+    }
 
-//     if (!chats) {
-//         throw new ApiError(HttpStatusCode.NOT_FOUND, "chats does not exist");
-//     }
+    // const message = await prisma.chat.findMany({
+    //     where: {
+    //         id: Number(messageId)
+    //     },
+    //     include: {
+    //         participants: true,
+    //         admin: true,
 
-//     const message = await prisma.chat.findMany({
-//         where: {
-//             id: Number(messageId)
-//         },
-//         include: {
-//             participants: true,
-//             admin: true,
+    //     }
+    // });
 
-//         }
-//     });
+    // if (!message) {
+    //     throw new ApiError(404, "Message does not exist");
+    // }
+    const updatedMessages = await prisma.chatMessage.delete({
+        where: {
+            id: Number(messageId)
+        }
+    });
 
-//     if (!message) {
-//         throw new ApiError(404, "Message does not exist");
-//     }
-
-//     if (userId !==message.find(m=>m.)) {
-//         throw new ApiError(
-//             403,
-//             "You are not the authorised to delete the message, you are not the sender"
-//         );
-//     }
-
-// });
+    console.log(updatedMessages);
+    
+    emitSocketEvent(
+        req,
+        chatId,
+        ChatEventEnum.MESSAGE_DELETE_EVENT,
+        updatedMessages
+    )
+    res.status(200).json(new ApiResponse(200, updatedMessages, "Message deleted successfully"));
+});
 
 // Export message controllers
 export {
     getAllMessages,
     sendMessage,
-    // deleteMessage
+    deleteMessage
 }
