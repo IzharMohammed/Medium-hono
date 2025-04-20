@@ -213,8 +213,6 @@ const ChatPage = () => {
     const handleOnSocketTyping = (chatId: string) => {
         // Check if the typing event is for the currently active chat.
         if (chatId !== currentChat.current?.id) return;
-        console.log("setting is typing to true");
-        
         // Set the typing state to true for the current chat.
         setIsTyping(true);
     }
@@ -274,7 +272,7 @@ const ChatPage = () => {
 
         // Retrieve the current chat details from local storage.
         const _currentChat = LocalStorage.get("currentChat");
-        console.log("_currentChat", _currentChat);
+        // console.log("_currentChat", _currentChat);
 
         // If there's a current chat saved in local storage:
         if (_currentChat) {
@@ -284,8 +282,6 @@ const ChatPage = () => {
             if (socket) {
                 socket?.emit(JOIN_CHAT_EVENT, _currentChat.id);
                 // Fetch the messages for the current chat.
-                console.log("0");
-
                 getMessages();
             }
         }
@@ -481,8 +477,8 @@ const ChatPage = () => {
         if (!selfTyping) {
             // Set the user as typing
             setSelfTyping(true);
-            console.log("typing ...",currentChat.current?.id);
-            
+            console.log("typing ...", currentChat.current?.id);
+
             // Emit a typing event to the server for the current chat
             socket.emit(TYPING_EVENT, currentChat.current?.id);
         }
@@ -664,10 +660,13 @@ const ChatPage = () => {
                                     <>
                                         {isTyping ? <Typing /> : null}
                                         {messages?.map((msg) => {
+                                            console.log("msg.sender.id", msg);
+                                            console.log("user.id", user.id);
+
                                             return (
                                                 <MessageItem
                                                     key={msg._id}
-                                                    isOwnMessage={msg.sender?.id === user?.id}
+                                                    isOwnMessage={msg.senderId === user?.id}
                                                     isGroupChatMessage={currentChat.current?.isGroupChat}
                                                     message={msg}
                                                     deleteChatMessage={deleteChatMessage}
