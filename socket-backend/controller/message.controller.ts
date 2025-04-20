@@ -6,10 +6,7 @@ import { ApiResponse } from "../utils/apiResponse";
 import { emitSocketEvent } from "../socket";
 import { ChatEventEnum } from "../constants";
 import { ApiError } from "../utils/ApiError";
-
-// Initialize Prisma client for database operations
-const prisma = new PrismaClient();
-
+import prisma from "../lib/prisma"
 /**
  * Controller to get all messages for a specific chat
  * Verifies user has access to the chat before returning messages

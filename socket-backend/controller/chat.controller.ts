@@ -6,9 +6,7 @@ import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/ApiError";
 import { emitSocketEvent } from "../socket";
 import { ChatEventEnum } from "../constants";
-
-// Initialize Prisma client for database operations
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma";
 
 /**
  * Controller to get all chats for the authenticated user
@@ -85,11 +83,11 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
             },
             include: {
                 participants: true,
-                messages:true
+                messages: true
             }
         });
-        console.log("all chats",allChats);
-        
+    console.log("all chats", allChats);
+
     // Check if chat already exists between these two users
     const existingChat = allChats.find(chat => {
         const ids = chat.participants.map(p => p.id).sort();
@@ -99,8 +97,8 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
             ids.includes(userId)
         )
     });
-    console.log("existingChat",existingChat);
-    
+    console.log("existingChat", existingChat);
+
     // Return existing chat if found
     if (existingChat) {
         res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, existingChat[0], "Chat retrieved successfully"));
@@ -118,7 +116,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
                 ]
             },
             admin: {
-                connect:{
+                connect: {
                     id: userId
                 }
             },
@@ -156,7 +154,7 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
     const { participants } = req.body;
     //@ts-ignore
     const userId = req.user.id;
-    
+
     // Prevent creator from adding themselves to participants
     if (participants.includes(userId)) {
         throw new ApiError(
@@ -167,7 +165,7 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
 
     // Ensure unique members (no duplicates)
     const uniqueMembers = [...new Set([...participants, userId])];
-    
+
     // Minimum 3 members required for a group
     if (uniqueMembers.length < 3) {
         throw new ApiError(400, "Group must have at least 3 unique members including the creator");
@@ -183,7 +181,7 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
             },
             isGroupChat: true,
             participants: {
-                connect: uniqueMembers.map(id => ({id}))
+                connect: uniqueMembers.map(id => ({ id }))
             },
             name: "Group chat"
         },
@@ -226,7 +224,7 @@ const getGroupChatDetails = asyncHandler(async (req: Request, res: Response) => 
             id: Number(chatId),
             isGroupChat: true,
         },
-        include:{
+        include: {
             admin: true,
             participants: true,
         }
@@ -359,7 +357,7 @@ const removeParticipantFromGroupChat = asyncHandler(async (req: Request, res: Re
     const { chatId, participantId } = req.params;
     //@ts-ignore
     const userId = req.user.id;
-    
+
     // Find the group chat
     const groupChat = await prisma.chat.findFirst({
         where: {
@@ -409,7 +407,7 @@ const removeParticipantFromGroupChat = asyncHandler(async (req: Request, res: Re
         updatedChat
     ),
 
-    res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, updatedChat, "Participant removed sucessfully"))
+        res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, updatedChat, "Participant removed sucessfully"))
 });
 
 /**
@@ -420,7 +418,7 @@ const addNewParticipantInGroupChat = asyncHandler(async (req: Request, res: Resp
     const { chatId, participantId } = req.params;
     //@ts-ignore
     const userId = req.user.id;
-    
+
     // Find the group chat
     const groupChat = await prisma.chat.findFirst({
         where: {
