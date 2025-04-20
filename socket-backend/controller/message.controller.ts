@@ -125,6 +125,8 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
             participants: true
         }
     });
+    console.log("chat", chat);
+    console.log(`message:- ${message}`);
 
     // Notify all other participants about new message via socket
     chat.participants.forEach(participant => {
@@ -153,7 +155,7 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
 
     res
         .status(201)
-        .json(new ApiResponse(201, chat, "Message saved successfully"));
+        .json(new ApiResponse(201, message, "Message saved successfully"));
 });
 
 

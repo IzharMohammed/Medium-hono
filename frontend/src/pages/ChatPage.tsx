@@ -150,7 +150,8 @@ const ChatPage = () => {
                 setMessage(""); // Clear the message input
                 // setAttachedFiles([]); // Clear the list of attached files
                 console.log("i am here ");
-
+                console.log(res.data);
+                
                 setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
                 updateChatLastMessage(currentChat.current?.id || "", res.data); // Update the last message in the chat
 
@@ -262,7 +263,7 @@ const ChatPage = () => {
             // After fetching, set the chat messages to the state if available
             (res) => {
                 const { data } = res;
-                console.log("data", data);
+                console.log("data", data.messages);
 
                 setMessages(data.messages || []);
             },
