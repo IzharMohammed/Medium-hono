@@ -8,100 +8,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// This model represents a user in the system.
-// A user can:
-// - Create multiple posts
-// - Send and receive follow requests (self-referencing relation)
-// - Send multiple chat messages
-// - Participate in many chats (many-to-many)
-// - Admin multiple chats (optional one-to-many)
-
 model User {
   id                     Int             @id @default(autoincrement())
   email                  String          @unique
   password               String
   name                   String
-  posts                  Post[]
-  sentFollowRequests     FollowRequest[] @relation("SentFollowRequest")
-  receivedFollowRequests FollowRequest[] @relation("ReceivedFollowRequest")
-  sentMessages           ChatMessage[]   @relation("SentMessages")
-  participantChats       Chat[]          @relation("ChatParticipants")
   adminChats             Chat[]          @relation("AdminChats")
+  sentMessages           ChatMessage[]   @relation("SentMessages")
+  receivedFollowRequests FollowRequest[] @relation("ReceivedFollowRequest")
+  sentFollowRequests     FollowRequest[] @relation("SentFollowRequest")
+  posts                  Post[]
+  participantChats       Chat[]          @relation("ChatParticipants")
 }
-
-// This model represents a blog post created by a user.
-// Each post is authored by one user (User → Post is One-to-Many).
 
 model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  imageUrl  String?
   published Boolean  @default(false)
-  createdAt DateTime @default(now()) @db.Date
-  author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
+  createdAt DateTime @default(now()) @db.Date
+  imageUrl  String?
+  author    User     @relation(fields: [authorId], references: [id])
 }
 
-// This model handles follow requests between users (self-referencing).
-// A follow request has a sender (follower) and receiver (being followed).
-// It uses two named relations on User to clarify sender/receiver roles.
-
 model FollowRequest {
-  id Int @id @default(autoincrement())
-
-  // Sender side of the relationship
-  sender   User @relation("SentFollowRequest", fields: [senderId], references: [id])
-  senderId Int
-
-  // Receiver side of the relationship
-  receiver   User @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
+  id         Int          @id @default(autoincrement())
+  senderId   Int
   receiverId Int
+  status     FollowStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  receiver   User         @relation("ReceivedFollowRequest", fields: [receiverId], references: [id])
+  sender     User         @relation("SentFollowRequest", fields: [senderId], references: [id])
 
-  status    FollowStatus @default(PENDING)
-  createdAt DateTime     @default(now())
-
-  // Enforce uniqueness to prevent duplicate follow requests
   @@unique([senderId, receiverId, status])
-  // Indexes to speed up queries based on senderId and receiverId
   @@index([senderId])
   @@index([receiverId])
 }
-
-// This model represents a chat room or conversation.
-// A chat can be a group or personal chat.
-// It has a list of participants (many-to-many with User),
-// an optional admin (one-to-many with User),
-// and a last message (optional one-to-one with ChatMessage).
 
 model Chat {
   id            Int           @id @default(autoincrement())
   name          String
   isGroupChat   Boolean       @default(false)
-  lastMessage   ChatMessage?  @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
   lastMessageId Int?          @unique
-  participants  User[]        @relation("ChatParticipants")
-  admin         User?         @relation("AdminChats", fields: [adminId], references: [id])
   adminId       Int?
-  messages      ChatMessage[] @relation("ChatMessages")
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  admin         User?         @relation("AdminChats", fields: [adminId], references: [id])
+  lastMessage   ChatMessage?  @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
+  messages      ChatMessage[] @relation("ChatMessages")
+  participants  User[]        @relation("ChatParticipants")
 }
-
-// This model represents individual messages in a chat.
-// Each message belongs to one chat and one sender.
-// Also optionally serves as a 'lastMessage' for a chat.
 
 model ChatMessage {
   id            Int      @id @default(autoincrement())
-  sender        User     @relation("SentMessages", fields: [senderId], references: [id])
   senderId      Int
   content       String
-  chat          Chat     @relation("ChatMessages", fields: [chatId], references: [id])
   chatId        Int
-  lastMessageOf Chat?    @relation("ChatLastMessage")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  lastMessageOf Chat?    @relation("ChatLastMessage")
+  chat          Chat     @relation("ChatMessages", fields: [chatId], references: [id])
+  sender        User     @relation("SentMessages", fields: [senderId], references: [id])
 }
 
 enum FollowStatus {
