@@ -85,6 +85,8 @@ const ChatPage = () => {
 
     useEffect(() => {
         console.log(messages);
+        console.log("Running use effect after receiving msg ");
+
         if (!socket) return;
         socket.on("messageResponse", (data) => setMessages([...messages, data]))
     }, [socket, messages])
@@ -148,12 +150,15 @@ const ChatPage = () => {
                 setMessage(""); // Clear the message input
                 // setAttachedFiles([]); // Clear the list of attached files
                 console.log("i am here ");
+
                 setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
                 updateChatLastMessage(currentChat.current?.id || "", res.data); // Update the last message in the chat
+
             },
             alert
         )
     }
+
 
     /**
    *  A  function to update the last message of a specified chat to update the chat list
@@ -354,16 +359,19 @@ const ChatPage = () => {
             console.error("Invalid message format:", message);
             return;
         }
+        console.log(message);
+        console.log(currentChat.current);
+
 
         // Check if the received message belongs to the currently active chat
-        if (message?.chat !== currentChat.current?.id) {
+        if (message?.chatId !== currentChat.current?.id) {
             // If not, update the list of unread messages
-            console.log("change hoja bhaii");
+            console.log("change hoja bhaii 1");
             setUnreadMessages((prev) => [message, ...prev]);
         } else {
             // If it belongs to the current chat, update the messages list for the active chat
             setMessages((prev) => [message, ...prev]);
-            console.log("change hoja bhaii");
+            console.log("change hoja bhaii 2");
         }
 
         // Update the last message for the chat to which the received message belongs
@@ -660,9 +668,6 @@ const ChatPage = () => {
                                     <>
                                         {isTyping ? <Typing /> : null}
                                         {messages?.map((msg) => {
-                                            console.log("msg.sender.id", msg);
-                                            console.log("user.id", user.id);
-
                                             return (
                                                 <MessageItem
                                                     key={msg._id}

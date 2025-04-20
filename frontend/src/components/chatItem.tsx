@@ -23,7 +23,7 @@ const ChatItem: React.FC<{
     onChatDelete: (chatId: string) => void;
 }> = ({ chat, onClick, isActive, unreadCount = 0, onChatDelete }) => {
     // const { user } = useAuth();
-
+    
     const token = localStorage.getItem('token') as string;
     const user = jwtDecode<UserInterface>(token);
     const [openOptions, setOpenOptions] = useState(false);
@@ -98,7 +98,7 @@ const ChatItem: React.FC<{
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     const ok = confirm(
-                                        "Are you sure you want to delete this chat?"
+                                        "Are you sure you want to delete this chat? hehe"
                                     );
                                     if (ok) {
                                         deleteChat();

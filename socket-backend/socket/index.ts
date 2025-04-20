@@ -1,12 +1,10 @@
 import { ChatEventEnum } from "../constants";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from '@prisma/client';
 import { Server } from "socket.io";
 import { ApiError } from "../utils/ApiError";
 import { HttpStatusCode } from "../types";
 import cookie from "cookie";
-
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma";
 
 // Enhanced with debugging
 const mountJoinChatEvent = (socket: any, io: any) => {
