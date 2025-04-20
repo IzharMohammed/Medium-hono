@@ -378,7 +378,7 @@ const AddChatModal: React.FC<{
               </SelectTrigger>
               <SelectContent>
                 {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
+                  <SelectItem key={user.id} className="text-black" value={user.id}>
                     {user.username}
                   </SelectItem>
                 ))}

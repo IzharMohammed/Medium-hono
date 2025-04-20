@@ -36,6 +36,18 @@ app.use(cors({
 app.use("/api/v1/chat-app/chats", chatRouter);
 app.use("/api/v1/chat-app/messages", messageRouter);
 
+app.get("/debug/rooms", (req, res) => {
+    const io = req.app.get("io") as Server; // Cast to Server type from socket.io
+    const rooms = io.sockets.adapter.rooms;
+    
+    // Properly typed room data extraction
+    const roomData = Array.from(rooms).map(([roomId, socketSet]) => ({
+        room: roomId,
+        members: Array.from(socketSet as Set<string>) // Explicitly type the Set
+    }));
+    
+    res.json(roomData);
+});
 
 // Define a route to handle GET requests to '/test'
 app.get('/test', (req, res) => {

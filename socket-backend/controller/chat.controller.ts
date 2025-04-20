@@ -40,7 +40,7 @@ const getAllChats = asyncHandler(async (req: Request, res: Response) => {
             }
         }
     });
-    console.log("chats", JSON.stringify(chats));
+    // console.log("chats", JSON.stringify(chats));
 
     res.status(200).json(new ApiResponse(200, chats || [], "User chats fetched successfully"))
 });

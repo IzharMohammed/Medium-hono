@@ -24,6 +24,8 @@ import AddChatModal from "../components/addChatModal";
 import { Button } from "../components/ui/button";
 import { useSocket } from "../context/socketContext";
 import Navbar from "../components/Navbar/Navbar";
+import { SendHorizontal } from "lucide-react";
+import SendIcon from "../components/sendIcon";
 
 interface ChatPageProps {
     socket: Socket | null;
@@ -87,34 +89,29 @@ const ChatPage = () => {
         socket.on("messageResponse", (data) => setMessages([...messages, data]))
     }, [socket, messages])
 
+    useEffect(() => {
+        if (!socket) return;
+
+        // Debug room joining
+        const handleJoinAck = (room: string) => {
+            console.log(`Successfully joined room ${room}`);
+            // Manually check room membership (not standard in socket.io client)
+            socket.emit("getMyRooms", (rooms: string[]) => {
+                console.log("Currently in rooms:", rooms);
+            });
+        };
+
+        socket.on("joinedRoom", handleJoinAck);
+
+        return () => {
+            socket.off("joinedRoom", handleJoinAck);
+        };
+    }, [socket]);
+
     // console.log('socket', socket);
 
     const token = localStorage.getItem('token') as string;
     const user = jwtDecode<UserInterface>(token);
-    // console.log(jwtDecode(token));
-
-    // const { username, email, id }: { username: string, email: string, id: number } = jwtDecode(token);
-    // console.log(jwtDecode(token));
-
-    // const user: UserInterface = {
-    //     email: payload.email  ,
-    //         id: payload.id,
-    //     username: payload.username,
-    // } 
-    // console.log("user", user);
-
-    // useEffect(() => {
-    //     if (!socket) return;
-
-    //     socket.on('join_room', (data) => {
-    //         console.log(`${data} joined from client side`);
-    //         socket.emit('join_room', data);
-    //     })
-
-    //     return () => {
-    //         socket.off('join_room');
-    //     }
-    // }, [socket])
 
     const getChats = async () => {
         requestHandler(
@@ -150,6 +147,7 @@ const ChatPage = () => {
             (res) => {
                 setMessage(""); // Clear the message input
                 // setAttachedFiles([]); // Clear the list of attached files
+                console.log("i am here ");
                 setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
                 updateChatLastMessage(currentChat.current?.id || "", res.data); // Update the last message in the chat
             },
@@ -167,19 +165,41 @@ const ChatPage = () => {
         // Search for the chat with the given ID in the chats array
         const chatToUpdate = chats.find((c) => c.id === chatToUpdateId);
         // Update the 'lastMessage' field of the found chat with the new message
-        chatToUpdate!.lastMessage = message;
-        // Update the 'updatedAt' field of the chat with the 'updatedAt' field from the message
-        chatToUpdate!.updatedAt = message.updatedAt
+        console.log(chatToUpdate);
+        if (!chatToUpdate) {
+            console.warn("Chat not found for id:", chatToUpdateId);
+            return;
+        }
+
+        // Update the chat fields
+        const updatedChat = {
+            ...chatToUpdate,
+            lastMessage: message,
+            updatedAt: message.updatedAt
+        };
 
         // Update the state of chats, placing the updated chat at the beginning of the array
         setChats([
-            chatToUpdate!, // Place the updated chat first
+            updatedChat!, // Place the updated chat first
             ...chats.filter((chat) => chat.id !== chatToUpdateId), // Include all other chats except the updated one
         ]);
     }
 
     const onConnect = () => {
         setIsConnected(true);
+        if (!socket) return;
+        // Join user's personal room
+        // On frontend
+        // Retrieve the current chat details from local storage.
+        const _currentChat = LocalStorage.get("currentChat");
+        console.log("_currentChat", _currentChat);
+        console.log("user.id", _currentChat.id);
+        socket.emit(JOIN_CHAT_EVENT, _currentChat.id);
+
+        // Join all chat rooms the user participates in
+        // chats.forEach(chat => {
+        //     socket.emit(JOIN_CHAT_EVENT,chat.id);
+        // });
     }
 
     const onDisconnect = () => {
@@ -193,7 +213,8 @@ const ChatPage = () => {
     const handleOnSocketTyping = (chatId: string) => {
         // Check if the typing event is for the currently active chat.
         if (chatId !== currentChat.current?.id) return;
-
+        console.log("setting is typing to true");
+        
         // Set the typing state to true for the current chat.
         setIsTyping(true);
     }
@@ -205,7 +226,7 @@ const ChatPage = () => {
         // Check if the stop typing event is for the currently active chat.
         if (chatId !== currentChat.current?.id) return;
         console.log("stopping the typing from ui");
-        
+
         // Set the typing state to false for the current chat.
         setIsTyping(false);
     }
@@ -274,6 +295,15 @@ const ChatPage = () => {
     // This useEffect handles the setting up and tearing down of socket event listeners.
     useEffect(() => {
         if (!socket) return;
+        // Debug listeners
+        socket.onAny((event, ...args) => {
+            console.log(`Socket event received: ${event}`, args);
+        });
+
+        socket.onAnyOutgoing((event, ...args) => {
+            console.log(`Socket event emitted: ${event}`, args);
+        });
+
         // Listener for when the socket connects.
         socket.on(CONNECTED_EVENT, onConnect);
         // Listener for when the socket disconnects.
@@ -295,6 +325,8 @@ const ChatPage = () => {
         // When the component using this hook unmounts or if `socket` or `chats` change:
         return () => {
             // Remove all the event listeners we set up to avoid memory leaks and unintended behaviors.
+            socket.offAny();
+            socket.offAnyOutgoing();
             socket.off(CONNECTED_EVENT, onConnect);
             socket.off(DISCONNECT_EVENT, onDisconnect);
             socket.off(TYPING_EVENT, handleOnSocketTyping);
@@ -319,17 +351,27 @@ const ChatPage = () => {
      * Handles the event when a new message is received.
      */
     const onMessageReceived = (message: ChatMessageInterface) => {
+        console.log("message", message);
+
+        // Debug: Check if message structure matches expected
+        if (!message?.id) {
+            console.error("Invalid message format:", message);
+            return;
+        }
+
         // Check if the received message belongs to the currently active chat
         if (message?.chat !== currentChat.current?.id) {
             // If not, update the list of unread messages
+            console.log("change hoja bhaii");
             setUnreadMessages((prev) => [message, ...prev]);
         } else {
             // If it belongs to the current chat, update the messages list for the active chat
             setMessages((prev) => [message, ...prev]);
+            console.log("change hoja bhaii");
         }
 
         // Update the last message for the chat to which the received message belongs
-        updateChatLastMessage(message.chat || "", message);
+        updateChatLastMessage(message.chatId || "", message);
     };
 
     const onNewChat = (chat: ChatListItemInterface) => {
@@ -439,7 +481,8 @@ const ChatPage = () => {
         if (!selfTyping) {
             // Set the user as typing
             setSelfTyping(true);
-
+            console.log("typing ...",currentChat.current?.id);
+            
             // Emit a typing event to the server for the current chat
             socket.emit(TYPING_EVENT, currentChat.current?.id);
         }
@@ -698,9 +741,9 @@ const ChatPage = () => {
                                 <Button
                                     onClick={sendChatMessage}
                                     disabled={!message && attachedFiles.length <= 0}
-                                    className="p-4 rounded-full bg-dark hover:bg-secondary disabled:opacity-50"
+                                    className="group p-4 rounded-full  disabled:opacity-50 transition-all duration-200"
                                 >
-                                    <PaperAirplaneIcon className="w-6 h-6" />
+                                    <SendIcon />
                                 </Button>
                             </div>
                         </>

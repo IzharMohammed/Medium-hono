@@ -1,104 +1,164 @@
-import { ChatEventEnum } from "../constants"
-import cookie from "cookie";
+import { ChatEventEnum } from "../constants";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from '@prisma/client';
 import { Server } from "socket.io";
 import { ApiError } from "../utils/ApiError";
 import { HttpStatusCode } from "../types";
+import cookie from "cookie";
 
 const prisma = new PrismaClient();
 
-const mountJoinChatEvent = (socket: any) => {
-    socket.on(ChatEventEnum.JOIN_CHAT_EVENT, (chatId: string) => {
-        console.log(`User joined the chat 🤝. chatId: `, chatId);
-        // joining the room with the chatId will allow specific events to be fired where we don't bother about the users like typing events
-        // E.g. When user types we don't want to emit that event to specific participant.
-        // We want to just emit that to the chat where the typing is happening
+// Enhanced with debugging
+const mountJoinChatEvent = (socket: any, io: any) => {
+    socket.on(ChatEventEnum.JOIN_CHAT_EVENT, (chatId: string, callback) => {
+        console.log(`[${socket.id}] Joining chat room: ${chatId}`);
+
+        // Leave any previous chat rooms to avoid duplicates
+        Array.from(socket.rooms).forEach(room => {
+            if (room !== socket.id && room !== socket.user?.id.toString()) {
+                socket.leave(room);
+                console.log(`[${socket.id}] Left room: ${room}`);
+            }
+        });
+
         socket.join(chatId);
+        console.log(`[${socket.id}] Joined room: ${chatId}`);
+
+        // Send acknowledgement
+        if (typeof callback === 'function') {
+            callback({
+                success: true,
+                room: chatId,
+                currentMembers: io.sockets.adapter.rooms.get(chatId)?.size || 0
+            });
+        }
+
+        // Debug current rooms
+        console.log(`[${socket.id}] Current rooms:`, Array.from(socket.rooms));
     });
 };
 
 const mountParticipantTypingEvent = (socket: any) => {
     socket.on(ChatEventEnum.TYPING_EVENT, (chatId: string) => {
-        socket.in(chatId).emit(ChatEventEnum.TYPING_EVENT, chatId);
+        console.log(`[${socket.id}] Typing in chat: ${chatId}`);
+        socket.in(chatId).emit(ChatEventEnum.TYPING_EVENT,
+            chatId,
+            // userId: socket.user?.id
+        );
     });
 };
 
 const mountParticipantStoppedTypingEvent = (socket: any) => {
     socket.on(ChatEventEnum.STOP_TYPING_EVENT, (chatId: string) => {
-        socket.in(chatId).emit(ChatEventEnum.STOP_TYPING_EVENT, chatId);
+        console.log(`[${socket.id}] Stopped typing in chat: ${chatId}`);
+        socket.in(chatId).emit(ChatEventEnum.STOP_TYPING_EVENT,
+            chatId,
+            // userId: socket.user?.id
+        );
     });
 };
 
-const InitializeSocketIO = (io: any) => {
+const InitializeSocketIO = (io: Server) => {
     return io.on("connection", async (socket) => {
         try {
-
-            // parse the cookies from the handshake headers (This is only possible if client has `withCredentials: true`)
-            // const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
-            // console.log("cookies", cookies);
-
-            let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhbmRvbUBnbWFpbC5jb20iLCJpZCI6MjcsInVzZXJuYW1lIjoicmFuZG9tIn0.zLnf8vFIDREDSogVrHznWjTWL59dH43io1onCf3T1Bw"// get the accessToken
-            console.log("token", token);
+            console.log(`\n=== New connection: ${socket.id} ===`);
+            let token = socket.handshake.auth?.token;
+            console.log("Auth token:", token);
 
             if (!token) {
-                // If there is no access token in cookies. Check inside the handshake auth
-                token = socket.handshake.auth?.token;
+                // Check cookies if not in auth
+                const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
+                token = cookies?.accessToken;
+                console.log("Cookie token:", token);
             }
 
             if (!token) {
-                // Token is required for the socket to work
-                throw new ApiError(HttpStatusCode.UNAUTHORIZED, "Un-authorized handshake. Token is missing");
+                // As last resort, check query params
+                token = socket.handshake.query?.token as string;
+                console.log("Query token:", token);
             }
-            // const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!); // decode the token
-            const decodedToken = jwt.verify(token, "secret"); // decode the token
 
-            // console.log("decodedToken", decodedToken);
+            if (!token) {
+                throw new ApiError(HttpStatusCode.UNAUTHORIZED, "Unauthorized handshake. Token is missing");
+            }
+            // Authentication
+            // let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJhbmRvbUBnbWFpbC5jb20iLCJpZCI6MjcsInVzZXJuYW1lIjoicmFuZG9tIn0.zLnf8vFIDREDSogVrHznWjTWL59dH43io1onCf3T1Bw";
+            const decodedToken = jwt.verify(token, "secret");
             //@ts-ignore
             const user = await prisma.user.findUnique({ where: { id: Number(decodedToken.id) } });
 
-            // retrieve the user
             if (!user) {
-                throw new Error("Un-authorized handshake. Token is invalid");
+                throw new Error("Unauthorized handshake. Token is invalid");
             }
 
-            socket.user = user; // mount te user object to the socket
+            //@ts-ignore
+            socket.user = user;
+            console.log(`Authenticated user: ${user.id} (${user.email})`);
 
-            // We are creating a room with user id so that if user is joined but does not have any active chat going on.
-            // still we want to emit some socket events to the user.
-            // so that the client can catch the event and show the notifications.
+            // Join user's personal room
             socket.join(user.id.toString());
-            socket.emit(ChatEventEnum.CONNECTED_EVENT); // emit the connected event so that client is aware
-            console.log("User connected 🗼. userId: ", user.id.toString());
+            console.log(`[${socket.id}] Joined personal room: ${user.id}`);
 
-            // Common events that needs to be mounted on the initialization
-            mountJoinChatEvent(socket);
+            // Mount event listeners
+            mountJoinChatEvent(socket, io);
             mountParticipantTypingEvent(socket);
             mountParticipantStoppedTypingEvent(socket);
 
-            socket.on(ChatEventEnum.DISCONNECT_EVENT, () => {
-                console.log("user has disconnected 🚫. userId: " + socket.user?._id);
-                if (socket.user?._id) {
-                    socket.leave(socket.user._id);
+            // Debug endpoint
+            socket.on('getMyRooms', (callback) => {
+                if (typeof callback === 'function') {
+                    callback({
+                        rooms: Array.from(socket.rooms),
+                        userRooms: Array.from(socket.rooms).filter(r => r !== socket.id)
+                    });
                 }
             });
 
+            // Connection established
+            socket.emit(ChatEventEnum.CONNECTED_EVENT, {
+                socketId: socket.id,
+                userId: user.id.toString()
+            });
+
+            // Disconnect handler
+            socket.on(ChatEventEnum.DISCONNECT_EVENT, () => {
+                console.log(`[${socket.id}] Disconnected. User ID: ${user.id}`);
+                socket.leave(user.id.toString());
+            });
+
+            // Error handler
+            socket.on('error', (error) => {
+                console.error(`[${socket.id}] Error:`, error);
+            });
+
         } catch (error) {
+            console.error(`Connection error [${socket.id}]:`, error);
             socket.emit(
                 ChatEventEnum.SOCKET_ERROR_EVENT,
-                error?.message || "Something went wrong while connecting to the socket."
-            )
+                error?.message || "Socket connection error"
+            );
+            socket.disconnect(true);
         }
-    })
+    });
 };
 
-const emitSocketEvent = (
-    // req: Request & { app: { get(name: "io"): Server } },
-    req: any,
-    roomId: string,
-    event: any,
-    payload: any): void => {
-    req.app.get("io").in(roomId).emit(event, payload);
-}
+const emitSocketEvent = (req: any, roomId: string, event: string, payload: any): void => {
+    const io = req.app.get("io");
+
+    console.log(`\n=== Emitting to room: ${roomId} ===`);
+    console.log(`Event: ${event}`);
+    console.log(`Payload:`, payload);
+
+    // Debug room info
+    const room = io.sockets.adapter.rooms.get(Number(roomId));
+    console.log(`Room:- ${Array.from(room)} Room members:- ${room?.size || 0}`);
+    if (room) {
+        console.log(`Member socket IDs:`, Array.from(room));
+    } else {
+        console.warn(`Room ${roomId} does not exist or is empty`);
+    }
+
+    io.in(Number(roomId)).emit(event, payload);
+};
 
 export { emitSocketEvent, InitializeSocketIO };

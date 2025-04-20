@@ -1,5 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import * as io from "socket.io-client";
+import { LocalStorage } from '../utils';
+import socketio from "socket.io-client";
 
 // Define the type for the Socket context, which contains a Socket instance or null
 type SocketContextType = {
@@ -19,6 +21,23 @@ const useSocket = () => useContext(SocketContext);
 //M-1
 // const SocketContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
+const getSocket = () => {
+    // const token = LocalStorage.get("token");
+    const token = localStorage.getItem("token");
+    console.log(token);
+    
+    if (!token) {
+        console.error("No token found in localStorage");
+        // Handle this case appropriately in your app
+    }
+
+    // Create a socket connection with the provided URI and authentication
+    return socketio("http://localhost:4000", {
+        withCredentials: true,
+        auth: { token }
+    })
+}
+
 const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     // Define a piece of state to hold the socket instance, initially set to null
     const [socket, setSocket] = useState<io.Socket | null>(null);
@@ -26,20 +45,20 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     // useEffect hook to set up the socket connection when the component mounts
     useEffect(() => {
         // Create a new connection to the socket server at localhost:4000
-        const socket = io.connect("http://localhost:4000");
+        // const socket = io.connect("http://localhost:4000");
 
         // Update the state with the connected socket instance
-        setSocket(socket);
+        setSocket(getSocket());
 
         // Log the socket ID when successfully connected
-        socket.on('connected', () => {
-            console.log(socket.id);
-        })
+        // socket.on('connected', () => {
+        //     console.log("socketId:-", socket.id);
+        // })
 
-        // Clean up: disconnect the socket when the component unmounts
-        return () => {
-            socket.disconnect();  // Ensure the socket disconnects when the provider is removed
-        }
+        // // Clean up: disconnect the socket when the component unmounts
+        // return () => {
+        //     socket.disconnect();  // Ensure the socket disconnects when the provider is removed
+        // }
     }, []); // Empty dependency array ensures the effect runs only once on mount
 
     // Return the context provider, passing the socket instance as the context value
@@ -50,4 +69,4 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
     );
 }
 
-export  {SocketContextProvider, useSocket};  // Export the provider to be used in the app
+export { SocketContextProvider, useSocket };  // Export the provider to be used in the app

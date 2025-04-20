@@ -26,10 +26,14 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
         },
         include: {
             participants: true,
-            messages: true,
-        }
+            messages: {
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+        },
     });
-    console.log("selectedChat", selectedChat);
+    // console.log("selectedChat", selectedChat);
 
     // Check if chat exists
     if (!selectedChat) {
@@ -50,7 +54,7 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
             createdAt: "desc"
         }
     });
-    console.log("messages",messages);
+    // console.log("messages", messages);
 
     res
         .status(HttpStatusCode.OK)
@@ -62,12 +66,12 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
  * Updates last message reference and notifies other participants via socket
  */
 const sendMessage = asyncHandler(async (req: Request, res: Response) => {
-        console.log("here");
-        console.log(req.body);
-        
+    console.log("here");
+    console.log(req.body);
+
     const { chatId } = req.params;
     const { content } = req.body;
-    
+
     //@ts-ignore
     const userId = req.user.id;
 
@@ -85,7 +89,7 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
             participants: true,
         }
     });
-console.log("chats",JSON.stringify(chats));
+    console.log("chats", JSON.stringify(chats));
 
     // Check if chat exists
     if (!chats) {
@@ -128,13 +132,26 @@ console.log("chats",JSON.stringify(chats));
     // Notify all other participants about new message via socket
     chat.participants.forEach(participant => {
         if (participant.id !== Number(userId)) {
+            console.log("Emittig from backend");
+
+            // emitSocketEvent(
+            //     req,
+            //     participant.id.toString(),
+            //     ChatEventEnum.MESSAGE_RECEIVED_EVENT,
+            //     // chat
+            //     message
+            // );
+
+            // Also emit to the chat room for real-time updates
             emitSocketEvent(
                 req,
-                participant.id.toString(),
+                chatId, // Chat room
                 ChatEventEnum.MESSAGE_RECEIVED_EVENT,
-                chat
+                message
             );
         }
+
+
     });
 
     res
