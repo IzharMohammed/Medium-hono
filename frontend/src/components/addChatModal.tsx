@@ -17,7 +17,7 @@ import { UserIcon as UserGroup, X, XCircle } from "lucide-react"
 // import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select"
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
@@ -56,11 +56,13 @@ const AddChatModal: React.FC<{
     );
   };
 
+  console.log("users", users);
   // Function to create a new chat with a user
   const createNewChat = async () => {
     // If no user is selected, show an alert
     if (!selectedUserId) return alert("Please select a user");
-
+    console.log("i am here");
+    
     // Handle the request to create a chat
     await requestHandler(
       // Callback to create a user chat
@@ -69,12 +71,14 @@ const AddChatModal: React.FC<{
       // Success callback
       (res) => {
         const { data } = res; // Extract data from response
+        console.log("data",data);
         // If chat already exists with the selected user
         if (res.statusCode === 200) {
           alert("Chat with selected user already exists");
           return;
         }
         onSuccess(data); // Execute the onSuccess function with received data
+        console.log("closing modal...");
         handleClose(); // Close the modal or popup
       },
       alert // Use the alert as the error handler
@@ -376,16 +380,51 @@ const AddChatModal: React.FC<{
               <SelectTrigger>
                 <SelectValue placeholder={isGroupChat ? "Select group participants..." : "Select a user to chat..."} />
               </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} className="text-black" value={user.id}>
-                    {user.username}
-                  </SelectItem>
-                ))}
+              <SelectContent
+                side="bottom" // Forces dropdown to appear below
+                position="popper" // Ensures proper positioning
+                align="start" // Aligns dropdown with the trigger
+                className="mt-1" // Adds a small gap
+              >
+                <SelectGroup>
+                  <SelectLabel>Users</SelectLabel>
+                  {
+                    users.map((user) => (
+                      <SelectItem value={user.id}>{user.name}</SelectItem>
+
+                    ))
+                  }
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
-
+          {/* <div>
+            <label htmlFor="user-select" className="block text-sm font-medium mb-1">
+              {isGroupChat ? "Select group participants..." : "Select a user to chat..."}
+            </label>
+            <select
+              id="user-select"
+              value={isGroupChat ? "" : selectedUserId || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (isGroupChat && !groupParticipants.includes(value)) {
+                  setGroupParticipants([...groupParticipants, value]);
+                } else {
+                  setSelectedUserId(value);
+                }
+              }}
+              className="w-full p-2 border rounded-md bg-background text-foreground"
+            >
+              <option value="" disabled>
+                {isGroupChat ? "Select participants..." : "Select a user..."}
+              </option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+          </div> */}
           <AnimatePresence>
             {isGroupChat && (
               <motion.div

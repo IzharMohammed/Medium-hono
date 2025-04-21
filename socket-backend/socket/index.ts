@@ -149,7 +149,8 @@ const emitSocketEvent = (req: any, roomId: string, event: string, payload: any):
 
     // Debug room info
     const room = io.sockets.adapter.rooms.get(Number(roomId));
-    console.log(`Room:- ${Array.from(room)} Room members:- ${room?.size || 0}`);
+    console.log(room);
+    // console.log(`Room:- ${Array.from(room)} Room members:- ${room?.size || 0}`);
     if (room) {
         console.log(`Member socket IDs:`, Array.from(room));
     } else {

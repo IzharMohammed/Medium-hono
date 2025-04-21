@@ -63,8 +63,7 @@ const getAllMessages = asyncHandler(async (req: Request, res: Response) => {
  * Updates last message reference and notifies other participants via socket
  */
 const sendMessage = asyncHandler(async (req: Request, res: Response) => {
-    console.log("here");
-    console.log(req.body);
+    // console.log(req.body);
 
     const { chatId } = req.params;
     const { content } = req.body;
@@ -86,7 +85,7 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
             participants: true,
         }
     });
-    console.log("chats", JSON.stringify(chats));
+    // console.log("chats", JSON.stringify(chats));
 
     // Check if chat exists
     if (!chats) {
@@ -125,14 +124,12 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
             participants: true
         }
     });
-    console.log("chat", chat);
-    console.log(`message:- ${message}`);
+    // console.log("chat", chat);
+    // console.log(`message:- ${message}`);
 
     // Notify all other participants about new message via socket
     chat.participants.forEach(participant => {
         if (participant.id !== Number(userId)) {
-            console.log("Emittig from backend");
-
             // emitSocketEvent(
             //     req,
             //     participant.id.toString(),
@@ -169,7 +166,7 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
  */
 const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
     const { chatId, messageId } = req.params;
-    console.log(`chatId:- ${chatId} messageId:- ${messageId}`);
+    // console.log(`chatId:- ${chatId} messageId:- ${messageId}`);
     // @ts-ignore
     const userId = req.user.id;
 
@@ -206,7 +203,6 @@ const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
         }
     });
 
-    console.log(updatedMessages);
     
     emitSocketEvent(
         req,

@@ -152,7 +152,7 @@ const ChatPage = () => {
                 console.log("i am here ");
                 console.log(res.data);
 
-                setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
+                // setMessages((prev) => [res.data, ...prev]); // Update messages in the UI
                 updateChatLastMessage(currentChat.current?.id || "", res.data); // Update the last message in the chat
 
             },
@@ -229,7 +229,6 @@ const ChatPage = () => {
     const handleOnSocketStopTyping = (chatId: string) => {
         // Check if the stop typing event is for the currently active chat.
         if (chatId !== currentChat.current?.id) return;
-        console.log("stopping the typing from ui");
 
         // Set the typing state to false for the current chat.
         setIsTyping(false);
@@ -360,8 +359,9 @@ const ChatPage = () => {
             console.error("Invalid message format:", message);
             return;
         }
-        console.log(message);
-        console.log(currentChat.current);
+        console.log("message", message);
+        console.log("currentChat.current?.id", currentChat.current?.id);
+        console.log("localStorage", localStorage.getItem("currentChat"));
 
 
         // Check if the received message belongs to the currently active chat
@@ -378,8 +378,12 @@ const ChatPage = () => {
         // Update the last message for the chat to which the received message belongs
         updateChatLastMessage(message.chatId || "", message);
     };
+    console.log("unreadMessages", unreadMessages);
+    console.log("messages", messages);
 
     const onNewChat = (chat: ChatListItemInterface) => {
+        console.log("on new chat is called");
+
         setChats((prev) => [chat, ...prev]);
     };
 
@@ -520,6 +524,7 @@ const ChatPage = () => {
             <AddChatModal
                 open={openAddChat}
                 onClose={() => {
+                    console.log("closing...");
                     setOpenAddChat(false);
                 }}
                 onSuccess={() => {
@@ -674,7 +679,7 @@ const ChatPage = () => {
                                         {messages?.map((msg) => {
                                             return (
                                                 <MessageItem
-                                                    key={msg._id}
+                                                    key={msg.id}
                                                     isOwnMessage={msg.senderId === user?.id}
                                                     isGroupChatMessage={currentChat.current?.isGroupChat}
                                                     message={msg}

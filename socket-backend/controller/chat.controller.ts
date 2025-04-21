@@ -101,7 +101,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
 
     // Return existing chat if found
     if (existingChat) {
-        res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, existingChat[0], "Chat retrieved successfully"));
+        res.status(HttpStatusCode.OK).json(new ApiResponse(HttpStatusCode.OK, existingChat, "Chat retrieved successfully"));
     }
 
     // Create new chat if none exists
@@ -128,7 +128,9 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
                 take: 1, // Include only the most recent message
             },
         }
-    })
+    });
+
+    console.log("newChatInstance",newChatInstance);
 
     // Notify the other participant about the new chat via socket
     newChatInstance.participants.forEach((participant) => {
@@ -538,7 +540,20 @@ const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // TODO: Implement one-on-one chat deletion
-const deleteOneOnOneChat = asyncHandler(async (req: Request, res: Response) => { });
+const deleteOneOnOneChat = asyncHandler(async (req: Request, res: Response) => {
+    const { chatId } = req.params;
+
+    const chat = await prisma.chat.delete({
+        where: {
+            id: Number(chatId)
+        }
+    });
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, chat, "Removed successfully"));
+
+});
 
 // Export all chat controllers
 export {
