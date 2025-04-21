@@ -19,7 +19,6 @@ export const requestHandler = async (
         // Make the API request
         const response = await api();
         const { data } = response;
-        console.log("data from one and one chat adding",data);
         
         if (data?.success) {
             // Call the onSuccess callback with the response data

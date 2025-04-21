@@ -130,7 +130,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
         }
     });
 
-    console.log("newChatInstance",newChatInstance);
+    console.log("newChatInstance", newChatInstance);
 
     // Notify the other participant about the new chat via socket
     newChatInstance.participants.forEach((participant) => {
@@ -542,12 +542,19 @@ const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => {
 // TODO: Implement one-on-one chat deletion
 const deleteOneOnOneChat = asyncHandler(async (req: Request, res: Response) => {
     const { chatId } = req.params;
-
-    const chat = await prisma.chat.delete({
-        where: {
-            id: Number(chatId)
-        }
-    });
+    
+    const [_, chat] = await prisma.$transaction([
+        prisma.chatMessage.deleteMany({
+            where: {
+                chatId: Number(chatId)
+            }
+        }),
+        prisma.chat.delete({
+            where: {
+                id: Number(chatId)
+            }
+        })
+    ])
 
     res
         .status(200)

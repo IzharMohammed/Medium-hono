@@ -56,13 +56,11 @@ const AddChatModal: React.FC<{
     );
   };
 
-  console.log("users", users);
   // Function to create a new chat with a user
   const createNewChat = async () => {
     // If no user is selected, show an alert
     if (!selectedUserId) return alert("Please select a user");
-    console.log("i am here");
-    
+
     // Handle the request to create a chat
     await requestHandler(
       // Callback to create a user chat
@@ -71,14 +69,12 @@ const AddChatModal: React.FC<{
       // Success callback
       (res) => {
         const { data } = res; // Extract data from response
-        console.log("data",data);
         // If chat already exists with the selected user
         if (res.statusCode === 200) {
           alert("Chat with selected user already exists");
           return;
         }
         onSuccess(data); // Execute the onSuccess function with received data
-        console.log("closing modal...");
         handleClose(); // Close the modal or popup
       },
       alert // Use the alert as the error handler
@@ -456,10 +452,10 @@ const AddChatModal: React.FC<{
                                 <img
                                   className="h-6 w-6 rounded-full object-cover"
                                   src={participant.avatar.url || "/placeholder.svg"}
-                                  alt={participant.username}
+                                  alt={participant.name}
                                 />
                               )}
-                              <span>{participant.username}</span>
+                              <span>{participant.name}</span>
                               <XCircle
                                 className="h-5 w-5 cursor-pointer hover:text-primary transition-colors"
                                 onClick={() => {

@@ -524,7 +524,6 @@ const ChatPage = () => {
             <AddChatModal
                 open={openAddChat}
                 onClose={() => {
-                    console.log("closing...");
                     setOpenAddChat(false);
                 }}
                 onSuccess={() => {
