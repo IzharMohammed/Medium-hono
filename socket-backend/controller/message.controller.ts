@@ -91,7 +91,6 @@ const sendMessage = asyncHandler(async (req: Request, res: Response) => {
     if (!chats) {
         throw new ApiError(HttpStatusCode.NOT_FOUND, "Chat does not exist");
     }
-
     // Create new message in database
     const message = await prisma.chatMessage.create({
         data: {
@@ -203,7 +202,7 @@ const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
         }
     });
 
-    
+
     emitSocketEvent(
         req,
         chatId,

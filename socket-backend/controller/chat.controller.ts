@@ -153,7 +153,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req: Request, res: Response
  * Requires at least 3 unique members including the creator
  */
 const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
-    const { participants } = req.body;
+    const { participants, name } = req.body;
     //@ts-ignore
     const userId = req.user.id;
 
@@ -185,7 +185,7 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
             participants: {
                 connect: uniqueMembers.map(id => ({ id }))
             },
-            name: "Group chat"
+            name
         },
         include: {
             participants: true,
@@ -542,7 +542,7 @@ const leaveGroupChat = asyncHandler(async (req: Request, res: Response) => {
 // TODO: Implement one-on-one chat deletion
 const deleteOneOnOneChat = asyncHandler(async (req: Request, res: Response) => {
     const { chatId } = req.params;
-    
+
     const [_, chat] = await prisma.$transaction([
         prisma.chatMessage.deleteMany({
             where: {

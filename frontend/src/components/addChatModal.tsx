@@ -1,21 +1,12 @@
-// // import { Dialog, Switch, Transition } from "@headlessui/react";
-// import {
-//   UserGroupIcon,
-//   XCircleIcon,
-//   XMarkIcon,
-// } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
 import { createGroupChat, createUserChat, getAvailableUsers } from "../api";
 import { classNames, requestHandler } from "../utils";
 import { ChatListItemInterface } from "../interface/chat";
 import { UserInterface } from "../interface/user";
-// import Select from "./select";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { motion, AnimatePresence } from "framer-motion"
 import { UserIcon as UserGroup, X, XCircle } from "lucide-react"
-// import { Button } from "@/components/ui/button"
-// import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select"
 import { Switch } from "./ui/switch";

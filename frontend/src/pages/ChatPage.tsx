@@ -352,16 +352,17 @@ const ChatPage = () => {
      * Handles the event when a new message is received.
      */
     const onMessageReceived = (message: ChatMessageInterface) => {
-        console.log("message", message);
+        // console.log("message", message);
 
         // Debug: Check if message structure matches expected
         if (!message?.id) {
             console.error("Invalid message format:", message);
             return;
         }
-        console.log("message", message);
-        console.log("currentChat.current?.id", currentChat.current?.id);
-        console.log("localStorage", localStorage.getItem("currentChat"));
+        // console.log("message", message);
+        // console.log("currentChat.current?.id", currentChat.current?.id);
+        // console.log("localStorage", localStorage.getItem("currentChat"));
+        console.log("messages", messages);
 
 
         // Check if the received message belongs to the currently active chat
@@ -501,7 +502,7 @@ const ChatPage = () => {
         if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
         }
-        console.log("typingTimeoutRef.current before", typingTimeoutRef.current);
+        // console.log("typingTimeoutRef.current before", typingTimeoutRef.current);
 
         // Define a length of time (in milliseconds) for the typing timeout
         const timerLength = 3000;
@@ -513,7 +514,7 @@ const ChatPage = () => {
             // Reset the user's typing state
             setSelfTyping(false);
         }, timerLength);
-        console.log("typingTimeoutRef.current after", typingTimeoutRef.current);
+        // console.log("typingTimeoutRef.current after", typingTimeoutRef.current);
 
     };
 

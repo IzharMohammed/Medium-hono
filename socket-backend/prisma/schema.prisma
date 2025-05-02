@@ -58,6 +58,10 @@ model Chat {
   lastMessage   ChatMessage?  @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
   messages      ChatMessage[] @relation("ChatMessages")
   participants  User[]        @relation("ChatParticipants")
+
+  // @@index([lastMessageId])
+  // @@index([adminId])
+  // @@index([createdAt])
 }
 
 model ChatMessage {
@@ -70,6 +74,10 @@ model ChatMessage {
   lastMessageOf Chat?    @relation("ChatLastMessage")
   chat          Chat     @relation("ChatMessages", fields: [chatId], references: [id])
   sender        User     @relation("SentMessages", fields: [senderId], references: [id])
+
+  // @@index([chatId])
+  // @@index([senderId])
+  // @@index([updatedAt])
 }
 
 enum FollowStatus {
