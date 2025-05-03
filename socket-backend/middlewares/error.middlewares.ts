@@ -1,3 +1,4 @@
+import logger from "../logger/winston.logger";
 import { ApiError } from "../utils/ApiError";
 
 /**
@@ -31,7 +32,7 @@ const errorHandler = (err, req, res, next) => {
         message: error.message,
         ...(process.env.NODE_ENV === "development" ? { stack: error.stack } : {}),
     }
-
+    logger.error(`${error.message}`)
     // Send error response
     return res.status(200).json(response);
 }

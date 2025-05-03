@@ -7,6 +7,7 @@ import chatRouter from "./routes/chat.routes";
 import messageRouter from "./routes/message.routes";
 import { InitializeSocketIO } from "./socket";
 import { errorHandler } from "./middlewares/error.middlewares";
+import logger from "./logger/winston.logger";
 
 const PORT = 4000;
 // Create an Express application
@@ -59,5 +60,6 @@ app.use(errorHandler);
 
 // Start the HTTP server and listen on the defined port
 httpServer.listen(PORT, () => {
-    console.log(`server is up on port: ${PORT}`);
+    logger.info(`Server is running on port: ${PORT}`);
+    // console.log(`server is up on port: ${PORT}`);
 });
