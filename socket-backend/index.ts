@@ -8,6 +8,7 @@ import messageRouter from "./routes/message.routes";
 import { InitializeSocketIO } from "./socket";
 import { errorHandler } from "./middlewares/error.middlewares";
 
+const PORT = 4000;
 // Create an Express application
 const app = express();
 app.use(express.json());
@@ -38,13 +39,13 @@ app.use("/api/v1/chat-app/messages", messageRouter);
 app.get("/debug/rooms", (req, res) => {
     const io = req.app.get("io") as Server; // Cast to Server type from socket.io
     const rooms = io.sockets.adapter.rooms;
-    
+
     // Properly typed room data extraction
     const roomData = Array.from(rooms).map(([roomId, socketSet]) => ({
         room: roomId,
         members: Array.from(socketSet as Set<string>) // Explicitly type the Set
     }));
-    
+
     res.json(roomData);
 });
 
@@ -56,3 +57,7 @@ app.get('/test', (req, res) => {
 InitializeSocketIO(io);
 app.use(errorHandler);
 
+// Start the HTTP server and listen on the defined port
+httpServer.listen(PORT, () => {
+    console.log(`server is up on port: ${PORT}`);
+});
