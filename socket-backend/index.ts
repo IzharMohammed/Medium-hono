@@ -1,5 +1,4 @@
 // Define the port for the server
-const PORT = 4000;
 import { Server } from "socket.io";
 import { createServer } from "http";
 import express from "express";
@@ -14,7 +13,7 @@ const app = express();
 app.use(express.json());
 // Create an HTTP server with Express
 // const server = http.createServer(app);
-const httpServer = createServer(app);
+export const httpServer = createServer(app);
 const io = new Server(httpServer, {
     pingTimeout: 60000,
     cors: {
@@ -57,7 +56,3 @@ app.get('/test', (req, res) => {
 InitializeSocketIO(io);
 app.use(errorHandler);
 
-// Start the HTTP server and listen on the defined port
-httpServer.listen(PORT, () => {
-    console.log(`server is up on port: ${PORT}`);
-});
