@@ -5,7 +5,7 @@ import { HttpStatusCode } from "../types";
 import { ApiResponse } from "../utils/apiResponse";
 import { emitSocketEvent } from "../socket";
 import { ChatEventEnum } from "../constants";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/apiError";
 import prisma from "../lib/prisma"
 /**
  * Controller to get all messages for a specific chat

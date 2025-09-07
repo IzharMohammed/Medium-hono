@@ -1,7 +1,7 @@
 import { ChatEventEnum } from "../constants";
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/apiError";
 import { HttpStatusCode } from "../types";
 import cookie from "cookie";
 import prisma from "../lib/prisma";

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/apiError";
 import { HttpStatusCode } from "../types";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";

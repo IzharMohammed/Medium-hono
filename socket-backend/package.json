@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch index.ts",
     "db:seed": "npx tsx --env-file=./.env ./prisma/seed/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "npm install && tsc",
+    "start": "tsx index.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +16,8 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/client": "^6.6.0",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/supertest": "^6.0.3",
     "cookie-parser": "^1.4.7",

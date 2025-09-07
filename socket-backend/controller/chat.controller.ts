@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { PrismaClient } from "@prisma/client";
 import { HttpStatusCode } from "../types";
 import { ApiResponse } from "../utils/apiResponse";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/apiError";
 import { emitSocketEvent } from "../socket";
 import { ChatEventEnum } from "../constants";
 import prisma from "../lib/prisma";
@@ -166,6 +166,7 @@ const createAGroupChat = asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Ensure unique members (no duplicates)
+    //@ts-ignore
     const uniqueMembers = [...new Set([...participants, userId])];
 
     // Minimum 3 members required for a group

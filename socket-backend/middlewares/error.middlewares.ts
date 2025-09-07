@@ -1,5 +1,5 @@
 import logger from "../logger/winston.logger";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/apiError";
 
 /**
  *

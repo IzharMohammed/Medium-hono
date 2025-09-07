@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+    "rootDir": "./",
+    "outDir": "./dist",
     "noUnusedLocals": false,
     "noUnusedParameters": false
-  }
+  },
+  "include": ["./**/*"],
+  "exclude": ["node_modules", "dist"]
 }
