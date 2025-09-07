@@ -51,6 +51,7 @@ app.get("/debug/rooms", (req, res) => {
 });
 
 
+
 // Define a route to handle GET requests to '/test'
 app.get('/test', (req, res) => {
     res.json({ msg: "successful" });
