@@ -1,0 +1,29 @@
+# Node.js for Express Socket Backend
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Install tsx globally for TypeScript execution
+RUN npm install -g tsx
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client (if using Prisma)
+RUN npx prisma generate
+
+# Build TypeScript
+RUN npm run build
+
+# Expose port (adjust if your app uses different port)
+EXPOSE 3001
+
+# Start the application
+CMD ["npm", "start"]
