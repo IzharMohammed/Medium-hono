@@ -5,10 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { getBackendUrl } from "../lib/getBackendUrl";
 
 function Signin() {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
   const BACKEND_URL = getBackendUrl();
@@ -16,29 +15,27 @@ function Signin() {
     //console.log('url',process.env.API_URL);
 
     const response = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, {
-      'email': email,
-      'password': password,
-      'username': username,
-    })
+      email: email,
+      password: password,
+      username: username,
+    });
 
-    console.log('response', response);
+    console.log("response", response);
 
-    if (response.data.msg === 'Email and password are necessary') {
-      toast.error('Email and password are necessary');
+    if (response.data.msg === "Email and password are necessary") {
+      toast.error("Email and password are necessary");
       return;
     }
 
-    if (response.data.err === 'Invalid credentials') {
-      toast.error("Invalid credentials")
+    if (response.data.err === "Invalid credentials") {
+      toast.error("Invalid credentials");
     }
 
     if (response.data) {
-      localStorage.setItem('token', response.data);
-      toast.success('successfully logged In')
-      navigate('/allBlogs');
+      localStorage.setItem("token", response.data);
+      toast.success("successfully logged In");
+      navigate("/allBlogs");
     }
-
-    console.log('backendurl', process.env.BACKEND_URL);
 
   }
   return (
@@ -46,7 +43,9 @@ function Signin() {
       <div className="border border-slate-600 w-[35rem] h-[30rem] m-auto flex flex-col justify-center items-center gap-9 rounded-md">
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl font-semibold ">Login</h1>
-          <p className="text-slate-500">Enter your email and password to access your account</p>
+          <p className="text-slate-500">
+            Enter your email and password to access your account
+          </p>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -79,7 +78,6 @@ function Signin() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-
         </div>
 
         <div>
@@ -89,11 +87,13 @@ function Signin() {
           >
             Sign In
           </button>
-          <div className="cursor-pointer" onClick={() => navigate('/SignUp')}>Don't have an account ? Sign up</div>
+          <div className="cursor-pointer" onClick={() => navigate("/SignUp")}>
+            Don't have an account ? Sign up
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Signin
+export default Signin;
