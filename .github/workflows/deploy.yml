@@ -65,14 +65,52 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # Pull fresh images
             sudo docker pull izhardev/medium-frontend:latest
             sudo docker pull izhardev/socket-backend:latest
+            sudo docker pull postgres:latest
 
+            # Stop & remove old containers
             sudo docker stop medium-frontend || true
             sudo docker rm medium-frontend || true
-
             sudo docker stop socket-backend || true
             sudo docker rm socket-backend || true
+            sudo docker stop medium-db || true
+            sudo docker rm medium-db || true
 
-            sudo docker compose down
-            sudo docker compose up -d
+            # Remove dangling images
+            sudo docker image prune -f
+
+            # Create a network if it doesn’t exist
+            sudo docker network create app-network || true
+
+            # Run Postgres
+            sudo docker run -d \
+              --name medium-db \
+              --network app-network \
+              -e POSTGRES_DB=medium-db \
+              -e POSTGRES_USER=postgres \
+              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -v postgres_data:/var/lib/postgresql/data \
+              -p 5432:5432 \
+              postgres:latest
+
+            # Run Backend
+            sudo docker run -d \
+              --name socket-backend \
+              --network app-network \
+              -p 4000:4000 \
+              -e NODE_ENV=production \
+              -e PORT=4000 \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e CORS_ORIGIN=http://localhost:5173 \
+              izhardev/socket-backend:latest
+
+            # Run Frontend
+            sudo docker run -d \
+              --name medium-frontend \
+              --network app-network \
+              -p 5173:5173 \
+              -e NODE_ENV=production \
+              -e VITE_API_URL=http://localhost:5173 \
+              izhardev/medium-frontend:latest
