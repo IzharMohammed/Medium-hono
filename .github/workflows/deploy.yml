@@ -38,8 +38,8 @@ jobs:
           file: ./socket-backend/Dockerfile.express
           push: true
           tags: |
-            izhardev/your-project-socket-backend:latest
-            izhardev/your-project-socket-backend:${{ github.sha }}
+            izhardev/socket-backend:latest
+            izhardev/socket-backend:${{ github.sha }}
           #platforms: linux/amd64,linux/arm64
 
       # Verify pushed images
