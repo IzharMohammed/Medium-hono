@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -30,8 +30,8 @@ jobs:
           push: true
           tags: |
             izhardev/medium-frontend:latest
-            izhardev/medium-frontend:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
+          #  izhardev/medium-frontend:${{ github.sha }}
+          # platforms: linux/amd64,linux/arm64
 
       # Build and Push Socket Backend (Express)
       - name: Build and Push Socket Backend Image
@@ -42,8 +42,8 @@ jobs:
           push: true
           tags: |
             izhardev/socket-backend:latest
-            izhardev/socket-backend:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
+          #  izhardev/socket-backend:${{ github.sha }}
+          # platforms: linux/amd64,linux/arm64
 
       # Verify pushed images
       - name: Verify Frontend Image
@@ -65,8 +65,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo docker pull izhardev/medium-frontend:${{ github.sha }}
-            sudo docker pull izhardev/socket-backend:${{ github.sha }}
+            sudo docker pull izhardev/medium-frontend:latest
+            sudo docker pull izhardev/socket-backend:latest
             sudo docker stop medium-frontend || true
             sudo docker rm medium-frontend || true
             sudo docker stop socket-backend || true
