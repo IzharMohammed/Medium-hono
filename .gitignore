@@ -1,0 +1,11 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
+
+# Other common ignores
+node_modules/
+dist/
+build/
+*.log

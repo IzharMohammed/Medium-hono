@@ -1,40 +1,55 @@
+# version: "3.8"
+
 services:
+  # Frontend Service (React Vite)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.vite
+    image: izhardev/medium-frontend:latest
+    container_name: medium-frontend
     ports:
       - "5173:5173"
-    container_name: medium-frontend
-    restart: unless-stopped
-
-  socket-backend:
-    build:
-      context: ./socket-backend
-      dockerfile: Dockerfile.express
-    ports:
-      - "4000:4000"
-    container_name: socket-backend
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      # Add other environment variables as needed
-    restart: unless-stopped
+      - VITE_API_URL=http://localhost:5173
+      # - VITE_SOCKET_URL=http://localhost:3001
     depends_on:
-      - db
+      - socket-backend
+    restart: unless-stopped
+    networks:
+      - app-network
 
-  db:
-    image: postgres:latest
-    container_name: medium-database
-    environment:
-      POSTGRES_DB: medium
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+  # Socket Backend Service (Express)
+  socket-backend:
+    image: izhardev/socket-backend:latest
+    container_name: socket-backend
     ports:
-      - "5432:5432"
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGIN=http://localhost:5173
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - database
+
+  database:
+    image: postgres:latest
+    container_name: medium-db
+    environment:
+      - POSTGRES_DB=medium-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
 
+networks:
+  app-network:
+    driver: bridge
 volumes:
   postgres_data:

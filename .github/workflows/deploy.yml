@@ -30,7 +30,7 @@ jobs:
           push: true
           tags: |
             izhardev/medium-frontend:latest
-          # izhardev/medium-frontend:${{ github.sha }}
+            izhardev/medium-frontend:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
 
       # Build and Push Socket Backend (Express)
@@ -42,7 +42,7 @@ jobs:
           push: true
           tags: |
             izhardev/socket-backend:latest
-          #  izhardev/socket-backend:${{ github.sha }}
+            izhardev/socket-backend:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
 
       # Verify pushed images
@@ -57,3 +57,19 @@ jobs:
           echo "Verifying socket backend image..."
           docker pull izhardev/socket-backend:latest
           docker images | grep izhardev/socket-backend
+
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          sudo docker pull izhardev/medium-frontend:${{ github.sha }}
+          sudo docker pull izhardev/socket-backend:${{ github.sha }}
+          sudo docker stop medium-frontend || true
+          sudo docker rm medium-frontend || true
+          sudo docker stop socket-backend || true
+          sudo docker rm socket-backend || true
+          sudo docker-compose down
+          sudo docker-compose up -d
